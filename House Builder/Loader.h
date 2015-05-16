@@ -6,6 +6,6 @@ class Loader {
 	Loader();
 public:
 	static Loader* getInstance();
-	Object* read(char file[]);
-	void write(char file[], Object* obj);
+	Object* read(std::string file);
+	void write(std::string file, Object* obj);
 };

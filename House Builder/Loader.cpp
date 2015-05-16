@@ -2,23 +2,24 @@
 #include <fstream>
 #include <sstream>
 #include <il/il.h>
+#include <iostream>
 
 using namespace std;
 
-string getDirectory(const char filepath[]) {
-	string str(filepath);
-	string directory = str.substr(0, str.rfind('\\') + 1);
-	return directory;
+string getAbsolutePath(string siblingFile, char fileName[]) {
+	size_t pos = siblingFile.rfind('\\');
+	string directory = siblingFile.substr(0, pos + 1);
+	return directory + string(fileName);
 }
 
-GLuint loadTexture(const char file[]) {
+GLuint loadTexture(string file) {
 	unsigned int imageID;
 	ilInit();
 	ilGenImages(1, &imageID);
 	ilBindImage(imageID);
 	ilEnable(IL_ORIGIN_SET);
 	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
-	ilLoadImage((ILstring)file);
+	ilLoadImage((ILstring)file.c_str());
 	//TODO: neccesary?
 	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
 	
@@ -35,8 +36,8 @@ GLuint loadTexture(const char file[]) {
 	return imageID;
 }
 
-void readMaterial(const char file[], Object* obj) {
-	FILE* in = fopen(file, "r");
+void readMaterial(string file, Object* obj) {
+	FILE* in = fopen(file.c_str(), "r");
 	char line[256];
 	material* mtl = new material;
 	while (fgets(line, sizeof(line), in)) {
@@ -69,17 +70,15 @@ void readMaterial(const char file[], Object* obj) {
 		if (strcmp(control, "map_Kd") == 0) {
 			char imgFile[256];
 			sscanf(line, "map_Kd %s", imgFile);
-			string str(imgFile);
-			string tmp = getDirectory(file) + str;
-			mtl->textureID = loadTexture(tmp.c_str());
+			mtl->textureID = loadTexture(getAbsolutePath(file, imgFile));
 		}
 	}
 	fclose(in);
 }
 
-Object* Loader::read(char file[]) {
+Object* Loader::read(string file) {
 	Object* obj = new Object();
-	FILE* in = fopen(file, "r");
+	FILE* in = fopen(file.c_str(), "r");
 	char line[256];
 	material* mtl = NULL;
 	while (fgets(line, sizeof(line), in)) {
@@ -91,16 +90,13 @@ Object* Loader::read(char file[]) {
 		if (strcmp(control, "mtllib") == 0) {
 			char materialFile[256];
 			sscanf(line, "mtllib %s", materialFile);
-			string str(materialFile);
-			string tmp = getDirectory(file) + str;
-			readMaterial(tmp.c_str(), obj);
+			readMaterial(getAbsolutePath(file, materialFile), obj);
 		}
 		//use material
 		if (strcmp(control, "usemtl") == 0) {
 			char materialName[256];
 			sscanf(line, "usemtl %s", materialName);
-			string str(materialName);
-			mtl = obj->materials[str];
+			mtl = obj->materials[string(materialName)];
 		}
 		//vertex
 		if (strcmp(control, "v") == 0) {
@@ -129,8 +125,7 @@ Object* Loader::read(char file[]) {
 				f.fv.push_back(fv);
 				pos += offset;
 			}
-			if (mtl)
-				f.mtl = mtl;
+			f.mtl = mtl;
 			obj->faces.push_back(f);
 		}
 		//position
@@ -147,8 +142,8 @@ Object* Loader::read(char file[]) {
 	return obj;
 }
 
-void Loader::write(char file[], Object* obj) {
-	FILE* out = fopen(file, "w");
+void Loader::write(string file, Object* obj) {
+	FILE* out = fopen(file.c_str(), "w");
 	//vertex
 	for (int i = 0; i < obj->vertexs.size(); i++) {
 		vertex& v = obj->vertexs[i];
