@@ -2,14 +2,12 @@
 #include <vector>
 #include <map>
 
-using namespace std;
-
 struct vertex {
 	 GLfloat x, y, z;
 };
 
 struct material {
-	string name;
+	std::string name;
 	GLuint textureID;
 	GLfloat a1, a2, a3;
 	GLfloat s1, s2, s3;
@@ -21,14 +19,14 @@ struct fvertex {
 };
 
 struct face {
-	vector<fvertex> fv;
+	std::vector<fvertex> fv;
 	material* mtl;
 };
 
 struct Object {
 	GLfloat x, y, z;
 	GLfloat vertical, horizontal;
-	vector<vertex> vertexs, nvertexs, tvertexs;
-	vector<face> faces;
-	map<string, material*> materials;
+	std::vector<vertex> vertexs, nvertexs, tvertexs;
+	std::vector<face> faces;
+	std::map<std::string, material*> materials;
 };

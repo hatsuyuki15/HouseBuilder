@@ -6,7 +6,7 @@ class GridMap {
 	int cellSize;
 	int grid[MAX_GRID_SIZE][MAX_GRID_SIZE];
 public:
-	vector<Object*> objects;
+	std::vector<Object*> objects;
 	GridMap(int cellSize);
 	void add(Object *obj);
 	void remove(Object *obj);

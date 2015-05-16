@@ -1,5 +1,7 @@
 #include "Common.h"
 
+using namespace std;
+
 GridMap::GridMap(int cellSize) {
 	this->cellSize = cellSize;
 	memset(grid, -1, sizeof(grid));

@@ -1,5 +1,4 @@
 #include "Common.h"
-#include <iostream>
 
 Render* render;
 
@@ -15,7 +14,7 @@ int main(int argc, char *argv[]) {
 	glutCreateWindow("Test");
 	//--------------------------------------------
 	Loader* loader = Loader::getInstance();
-	Object* obj = loader->read("E:\\Downloads\\nielsen\\nielsen.obj");
+	Object* obj = loader->read("E:\\Downloads\\rungholt\\house.obj");
 	GridMap* map = new GridMap(50);
 	map->add(obj);
 	render = new Render();

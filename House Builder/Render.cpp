@@ -1,5 +1,4 @@
 #include "Common.h"
-#include <iostream>
 
 Render::Render() {
 	glEnable(GL_DEPTH_TEST);
@@ -13,12 +12,11 @@ void Render::setGridMap(GridMap* map) {
 
 void renderObj(Object* obj) {
 	for (int i = 0; i < obj->faces.size(); i++) {
+		face& f = obj->faces[i];
+		glBindTexture(GL_TEXTURE_2D, (f.mtl)->textureID);
 		glBegin(GL_POLYGON);
-		face& f = (obj->faces)[i];
-		material* mtl = f.mtl;
-		glBindTexture(GL_TEXTURE_2D, mtl->textureID);
 		for (int j = 0; j < f.fv.size(); j++) {
-			fvertex fv = f.fv[j];
+			fvertex& fv = f.fv[j];
 			vertex& v  = obj->vertexs[fv.iv - 1];
 			vertex& vt = obj->tvertexs[fv.ivt - 1];
 			glTexCoord2f(vt.x, vt.y);
@@ -32,8 +30,7 @@ void Render::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	vector<Object*>& objects = map->objects;
-	for (int i = 0; i < objects.size(); i++)
-		renderObj(objects[i]);
+	for (int i = 0; i < map->objects.size(); i++)
+		renderObj(map->objects[i]);
 	glFlush();
 }

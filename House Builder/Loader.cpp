@@ -1,8 +1,9 @@
 #include "Common.h"
 #include <fstream>
 #include <sstream>
-#include <iostream>
 #include <il/il.h>
+
+using namespace std;
 
 string getDirectory(const char filepath[]) {
 	string str(filepath);
