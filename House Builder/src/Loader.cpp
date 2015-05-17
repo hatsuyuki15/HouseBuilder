@@ -7,7 +7,7 @@ using namespace std;
 
 string getDirectory(const char filepath[]) {
 	string str(filepath);
-	string directory = str.substr(0, str.rfind('\\') + 1);
+	string directory = str.substr(0, str.rfind('/') + 1);
 	return directory;
 }
 
