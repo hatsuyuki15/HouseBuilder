@@ -29,21 +29,26 @@ void Camera::move(GLfloat deltaX, GLfloat deltaY, GLfloat deltaZ) {
 	gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, 0, 1, 0);
 }
 
-void Camera::zoom(GLfloat ratio) {
-
-}
 
 GLfloat distance(GLfloat a, GLfloat b, GLfloat c, GLfloat x, GLfloat y, GLfloat z) {
 	return sqrt(pow(a - x, 2) + pow(b - y, 2) + pow(c - z, 2));
 }
 
-void Camera::rotate(GLfloat dVertical, GLfloat dHorizontal) {
-	vertical += dVertical;
-	horizontal += dHorizontal;
+void Camera::zoom(GLfloat ratio) {
 	GLfloat R = distance(eyeX, eyeY, eyeZ, centerX, centerY, centerZ);
+	R *= ratio;
 	eyeX = centerX + R * cos(horizontal);
 	eyeY = centerY + R * sin(horizontal);
 	eyeZ = centerY + R * sin(vertical);
 	gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, 0, 1, 0);
+}
 
+void Camera::rotate(GLfloat dVertical, GLfloat dHorizontal) {
+	GLfloat R = distance(eyeX, eyeY, eyeZ, centerX, centerY, centerZ);
+	vertical += dVertical;
+	horizontal += dHorizontal;
+	eyeX = centerX + R * cos(horizontal);
+	eyeY = centerY + R * sin(horizontal);
+	eyeZ = centerY + R * sin(vertical);
+	gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, 0, 1, 0);
 }
