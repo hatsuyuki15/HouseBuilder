@@ -4,6 +4,13 @@ Render::Render() {
 	glEnable(GL_DEPTH_TEST);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 	glEnable(GL_TEXTURE_2D);
+	glClearColor(1.0, 1.0, 1.0, 0.0);
+	glColor3f(0.0, 0.0, 0.0);
+	glPointSize(1.0);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	//TODO: default value for Orthor
+	glOrtho(-50, 50, -50, 50, -50, 50);
 }
 
 void Render::setGridMap(GridMap* map) {

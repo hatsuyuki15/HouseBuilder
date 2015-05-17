@@ -5,18 +5,9 @@ Camera::Camera() {
 	eyeX = 0;
 	eyeY = 0;
 	eyeZ = 30;
-
 	centerX = 0;
 	centerY = 0;
 	centerZ = 0;
-
-	glClearColor(1.0, 1.0, 1.0, 0.0);
-	glColor3f(0.0, 0.0, 0.0);
-	glPointSize(1.0);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	//TODO: default value for Orthor
-	glOrtho(-50, 50, -50, 50, -50, 50);
 	gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, 0, 1, 0);
 }
 
