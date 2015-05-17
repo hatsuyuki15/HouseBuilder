@@ -4,10 +4,25 @@
 #include "Render.h"
 
 Render::Render() {
-	glEnable(GL_DEPTH_TEST);
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glEnable(GL_DEPTH_TEST);	
 	glEnable(GL_TEXTURE_2D);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 	glEnable(GL_NORMALIZE);
+	// Somewhere in the initialization part of your program…
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+
+	// Create light components
+	GLfloat ambientLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+	GLfloat diffuseLight[] = { 0.8f, 0.8f, 0.8, 1.0f };
+	GLfloat specularLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	GLfloat position[] = { -1.5f, 1.0f, -4.0f, 1.0f };
+
+	// Assign created components to GL_LIGHT0
+	glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
+	glLightfv(GL_LIGHT0, GL_POSITION, position);
 	camera = Camera::getCamera();
 }
 
@@ -48,10 +63,10 @@ void Render::renderObj(Obj* obj) {
 			for (int j = 0; j < 3; ++j) {
 				int idm = mesh.indices[f*3 + j]; // material index
 				int idv = idm * 3; // vertex index
-				int idt = idm * 2; // texture coord				
-				glVertex3f(mesh.positions[idv], mesh.positions[idv + 1], mesh.positions[idv + 2]);				
-				glTexCoord2f(mesh.texcoords[idt], mesh.texcoords[idt+1]);				
+				int idt = idm * 2; // texture coord
 				glNormal3f(mesh.normals[idv], mesh.normals[idv + 1], mesh.normals[idv + 2]);
+				glTexCoord2f(mesh.texcoords[idt], mesh.texcoords[idt + 1]);
+				glVertex3f(mesh.positions[idv], mesh.positions[idv + 1], mesh.positions[idv + 2]);								
 			}
 			glEnd();
 		}		
