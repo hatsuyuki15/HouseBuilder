@@ -82,5 +82,4 @@ void Render::render() {
 	for (int i = 0; i < map->objects.size(); i++) {
 		renderObj(map->objects[i]);
 	}	
-	glFlush();
 }
