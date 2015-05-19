@@ -29,6 +29,8 @@ public:
 	void rotate(GLfloat vertical, GLfloat horizontal);
 	void resetCamera();
 	void setModelMatrix(const glm::mat4 &modelMatrix);
+	glm::mat4 getProjectionMatrix();
+	glm::mat4 getModelViewMatrix();
 	void resetModelMatrix();
 };
 

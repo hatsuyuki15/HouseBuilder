@@ -14,6 +14,7 @@ public:
 	void setGridMap(GridMap* map);
 	void render();
 	void renderObj(Obj* obj);
+	void renderGridLayout();
 };
 
 #endif

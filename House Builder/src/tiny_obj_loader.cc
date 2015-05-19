@@ -768,13 +768,11 @@ std::string LoadObj(std::vector<shape_t> &shapes,
     // load mtl
     if ((0 == strncmp(token, "mtllib", 6)) && isSpace((token[6]))) {
       char namebuf[4096];
-	  printf("[?] %s\n", token);
       token += 7;
       sscanf(token, "%s", namebuf);
 
       std::string err_mtl = readMatFn(namebuf, materials, material_map);
-	  printf("%d\n", material_map.size());
-	  printf("[!] %s\n", err_mtl);	  
+  
       if (!err_mtl.empty()) {
         faceGroup.clear(); // for safety
         return err_mtl;

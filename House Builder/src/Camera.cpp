@@ -1,22 +1,22 @@
 #include "Camera.h"
 
 Camera::Camera() {
-	eye = glm::vec3(0, 0, 30);
+	eye = glm::vec3(0, 50, 30);
 	look = glm::vec3(0, 0, 0);	
-	up = glm::vec3(0, 1, 0);
+	up = glm::vec3(0, 3, -5);
 
 	viewAngle = 45.0;
 	aspect = windowWidth / windowHeight;
-	nearPlane = 0.1;
-	farPlane = 1000;
-
+	nearPlane = 1.0;
+	farPlane = 512.0;
+	
 	glClearColor(1.0, 1.0, 1.0, 0.5);
 	glColor3f(0.0, 0.0, 0.0);
 	glPointSize(1.0);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(viewAngle, aspect, nearPlane, farPlane);
-	//glMatrixMode(GL_MODELVIEW);
+	glMatrixMode(GL_MODELVIEW);	
 	//gluLookAt(eye.x, eye.y, eye.z, look.x, look.y, look.z, up.x, up.y, up.z);
 	resetCamera();
 }
@@ -34,6 +34,7 @@ void Camera::resetCamera() {
 	modelMatrix = glm::mat4(1.0f);
 	projectionMatrix = glm::perspective(viewAngle, aspect, nearPlane, farPlane);
 	loadModelViewProjectionMatrix();
+	
 }
 
 void Camera::loadModelViewProjectionMatrix() {
@@ -72,4 +73,14 @@ void Camera::setModelMatrix(const glm::mat4 &modelMatrix) {
 void Camera::resetModelMatrix() {
 	modelMatrix = glm::mat4(1.0f);
 	loadModelViewProjectionMatrix();
+}
+
+glm::mat4 Camera::getProjectionMatrix() {	
+	return projectionMatrix;
+}
+
+glm::mat4 Camera::getModelViewMatrix() {
+	viewMatrix = glm::lookAt(eye, look, up);
+	glm::mat4 MV = viewMatrix * modelMatrix;
+	return MV;
 }

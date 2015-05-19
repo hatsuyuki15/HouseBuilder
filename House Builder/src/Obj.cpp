@@ -19,3 +19,14 @@ glm::mat4 Obj::getModelMatrix() {
 	modelMatrix = TranslateMatrix * ScaleMatrix * RotationMatrixX * RotationMatrixY * RotationMatrixZ;
 	return modelMatrix;
 }
+
+void Obj::move(GLfloat x, GLfloat y, GLfloat z) {
+	transform.position += glm::vec3(x, y, z);
+}
+
+void Obj::setName(char* name) {
+	int l = strlen(name);
+	this->name = new char[l + 1];
+	strncpy(this->name, name, l);
+	this->name[l] = 0;
+}

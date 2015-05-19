@@ -15,6 +15,7 @@ struct Transformation {
 
 class Obj {
 public:
+	char* name;
 	char* fileName;
 	std::string resourceFolder;
 	Shapes shapes;
@@ -22,6 +23,8 @@ public:
 	Transformation transform;
 	Obj* clone();
 	glm::mat4 getModelMatrix();
+	void move(GLfloat x, GLfloat y, GLfloat z);
+	void setName(char* name);
 private:
 	glm::mat4 modelMatrix;
 };
