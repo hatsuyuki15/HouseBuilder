@@ -1,8 +1,8 @@
 #include "Common.h"
 
 class Instance {
-	Object* obj;
 public:
+	Object* obj;
 	GLfloat x, y, z;
 	GLfloat vertical, horizontal;
 	Instance(Object* object);

@@ -1,5 +1,7 @@
 #include "Common.h"
 
+using namespace std;
+
 Render::Render() {
 	glEnable(GL_DEPTH_TEST);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
@@ -17,7 +19,8 @@ void Render::setGridMap(GridMap* map) {
 	this->map = map;
 }
 
-void renderObj(Object* obj) {
+void renderObj(Instance* instance) {
+	Object* obj = instance->obj;
 	for (int i = 0; i < obj->faces.size(); i++) {
 		face& f = obj->faces[i];
 		glBindTexture(GL_TEXTURE_2D, (f.mtl)->textureID);
@@ -37,7 +40,8 @@ void Render::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	for (int i = 0; i < map->objects.size(); i++)
-		renderObj(map->objects[i]);
+	vector<Instance*> instances = map->getInstances();
+	for (int i = 0; i < instances.size(); i++)
+		renderObj(instances[i]);
 	glFlush();
 }

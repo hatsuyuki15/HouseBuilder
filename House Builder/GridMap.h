@@ -2,17 +2,22 @@
 
 const int MAX_GRID_SIZE = 5000;
 
+struct BBox {
+	int x, y;
+	int width, height;
+	bool standby;
+};
+
 class GridMap {
 	int cellSize;
-	int grid[MAX_GRID_SIZE][MAX_GRID_SIZE];
+	Instance* grid[MAX_GRID_SIZE][MAX_GRID_SIZE];
+	std::map<Instance*, BBox> bmap;
 public:
-	std::vector<Object*> objects;
-	GridMap(int cellSize);
-	void add(Object *obj);
-	void remove(Object *obj);
-	void toGridCoordinate(GLfloat x, GLfloat y, int& p, int& q);
-	bool isLocationAvailable(int p, int q);
-	Object* getObject(int p, int q);
-	void setObject(Object* obj, int p, int q);
+	Instance* getInstanceAt(int x, int y);
+	void toGridLocation(GLfloat worldX, GLfloat worldY, int& x, int& y);
+	bool isPuttable(Instance* instance, int x, int y);
+	void put(Instance* instance, int x, int y);
+	void add(Instance* instance);
+	std::vector<Instance*> getInstances();
 };
 
