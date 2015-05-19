@@ -1,8 +1,7 @@
 #include "Common.h"
 
 class Camera {
-	GLfloat eyeX, eyeY, eyeZ;
-	GLfloat centerX, centerY, centerZ;
+	glm::vec3 eye, center;
 	GLfloat vertical, horizontal;
 	GLfloat viewAngle, aspect, zNear, zFar;
 	static Camera* handle;

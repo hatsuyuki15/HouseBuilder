@@ -1,5 +1,4 @@
 #include "Common.h"
-#include <iostream>
 
 using namespace glm;
 
@@ -8,6 +7,7 @@ Camera* camera;
 GridMap* map;
 Object* obj1;
 Instance* instance;
+vec2 lastGridPosition;
 
 void loadData() {
 	map = new GridMap(30, -450, -900);
@@ -91,26 +91,21 @@ vec3 getWorldCoordinate(int mouseX, int mouseY) {
 	vec3 oF = vec3(posX, posY, posZ);
 	vec3 u = oF - oN;
 	u = glm::normalize(u);
-	float k;
 	if (oN.y == 0){
 		return oN;
-	}
-	else if (u.y != 0) {
-		k = -oN.y / u.y;
+	} else if (u.y != 0) {
+		float k = -oN.y / u.y;
 		return oN + k*u;
 	}
 }
 
-int lastX, lastY;
 void myMouse(int mouseX, int mouseY) {
 	if (instance) {
-		int x, y;
 		vec3 world = getWorldCoordinate(mouseX, mouseY);
-		map->toGridLocation(world.x, world.z, x, y);
-		if (x != lastX || y != lastY) {
-			map->put(instance, x, y);
-			lastX = x;
-			lastY = y;
+		vec2 position = map->getGridCoordinate(world);
+		if (position != lastGridPosition) {
+			map->put(instance, position.x, position.y);
+			lastGridPosition = position;
 			glutPostRedisplay();
 		}
 	}

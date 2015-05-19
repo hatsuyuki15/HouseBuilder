@@ -36,9 +36,9 @@ void renderObj(Instance* instance) {
 }
 
 void Render::render() {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	renderGridLayout();
 	vector<Instance*> instances = map->getInstances();
 	for (int i = 0; i < instances.size(); i++)
@@ -51,17 +51,18 @@ void Render::renderGridLayout() {
 	int cellSize = map->getCellSize();
 	int width  = map->getWidth();
 	int height = map->getHeight();
-	GLfloat borderOX, borderOY, borderX, borderY;
-	map->toWorldLocation(borderOX, borderOY, 0, 0);
-	map->toWorldLocation(borderX, borderY, width - 1, height - 1);
+	glm::vec3 minBorder = map->getWorldCoordinate(0, 0);
+	glm::vec3 maxBorder = map->getWorldCoordinate(width - 1, height - 1);
 	glBegin(GL_LINES);
 	for (int i = 0; i < width; i++) {
-		glVertex3f(borderOX + cellSize * i, 0, borderOY);
-		glVertex3f(borderOX + cellSize * i, 0, borderY);
+		GLfloat x = minBorder.x + cellSize * i;
+		glVertex3f(x, 0, minBorder.z);
+		glVertex3f(x, 0, maxBorder.z);
 	}
 	for (int i = 0; i < height; i++) {
-		glVertex3f(borderOX, 0, borderOY + cellSize * i);
-		glVertex3f(borderX, 0,  borderOY + cellSize * i);
+		GLfloat z = minBorder.z + cellSize * i;
+		glVertex3f(minBorder.x, 0, z);
+		glVertex3f(maxBorder.x, 0, z);
 	}
 	glEnd();
 }

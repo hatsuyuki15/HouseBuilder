@@ -20,7 +20,6 @@ GLuint loadTexture(string file) {
 	ilEnable(IL_ORIGIN_SET);
 	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
 	ilLoadImage((ILstring)file.c_str());
-	//TODO: neccesary?
 	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
 	
 	GLuint textureID;
@@ -54,17 +53,17 @@ void readMaterial(string file, Object* obj) {
 			mtl->name = str;
 			obj->materials[str] = mtl;
 		}
-		//lighting: diffuse
-		if (strcmp(control, "Kd") == 0) {
-			sscanf(line, "Kd %f %f %f", &mtl->d1, &mtl->d2, &mtl->d3);
+		//lighting: ambient
+		if (strcmp(control, "Ka") == 0) {
+			sscanf(line, "Kd %f %f %f", &mtl->ambient.x, &mtl->ambient.y, &mtl->ambient.z);
 		}
 		//lighting: specular
 		if (strcmp(control, "Ks") == 0) {
-			sscanf(line, "Ks %f %f %f", &mtl->s1, &mtl->s2, &mtl->s3);
+			sscanf(line, "Ks %f %f %f", &mtl->specular.x, &mtl->specular.y, &mtl->specular.z);
 		}
-		//lighting: ambient
-		if (strcmp(control, "Ka") == 0) {
-			sscanf(line, "Ka %f %f %f", &mtl->a1, &mtl->a2, &mtl->a3);
+		//lighting: diffuse
+		if (strcmp(control, "Kd") == 0) {
+			sscanf(line, "Ka %f %f %f", &mtl->diffuse.x, &mtl->diffuse.y, &mtl->diffuse.z);
 		}
 		//lighting: image
 		if (strcmp(control, "map_Kd") == 0) {
@@ -128,15 +127,6 @@ Object* Loader::read(string file) {
 			f.mtl = mtl;
 			obj->faces.push_back(f);
 		}
-		//position
-		if (strcmp(control, "#p")) {
-			sscanf(line, "#p %f %f %f", &obj->x, &obj->y, &obj->z);
-		}
-		//rotation
-		if (strcmp(control, "#r")) {
-			sscanf(line, "#r %f %f", &obj->vertical, &obj->horizontal);
-		}
-
 	}
 	fclose(in);
 	return obj;
@@ -174,10 +164,6 @@ void Loader::write(string file, Object* obj) {
 		}
 		fprintf(out, "\n");
 	}
-	//position
-	fprintf(out, "#p %f %f %f", obj->x, obj->y, obj->z);
-	//rotation
-	fprintf(out, "#r %f %f", obj->vertical, obj->horizontal);
 	fclose(out);
 }	
 

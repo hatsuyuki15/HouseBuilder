@@ -1,5 +1,6 @@
 #include "Common.h"
 #include <cmath>
+using namespace glm;
 
 Camera::Camera() {	
 	viewAngle = 45;
@@ -8,14 +9,12 @@ Camera::Camera() {
 	zFar = 1000;
 	
 	GLfloat R = 100;
-	centerX = 0;
-	centerY = 0;
-	centerZ = 0;
+	center = vec3(0, 0, 0);
 	horizontal = 0;
 	vertical = 0.3;
-	eyeX = centerX + R * sin(horizontal) * cos(vertical);
-	eyeY = centerY + R * sin(vertical);
-	eyeZ = centerZ + R * cos(horizontal) * cos(vertical);
+	eye.x = center.x + R * sin(horizontal) * cos(vertical);
+	eye.y = center.y + R * sin(vertical);
+	eye.z = center.z + R * cos(horizontal) * cos(vertical);
 	update();
 }
 
@@ -28,36 +27,32 @@ Camera* Camera::getCamera() {
 }
 
 void Camera::move(GLfloat deltaX, GLfloat deltaY, GLfloat deltaZ) {
-	eyeX += deltaX;
-	eyeY += deltaY;
-	eyeZ += deltaZ;
-	centerX += deltaX;
-	centerY += deltaY;
-	centerZ += deltaZ;
+	eye    += vec3(deltaX, deltaY, deltaZ);
+	center += vec3(deltaX, deltaY, deltaZ);
 	update();
 }
 
 
-GLfloat distance(GLfloat a, GLfloat b, GLfloat c, GLfloat x, GLfloat y, GLfloat z) {
-	return sqrt(pow(a - x, 2) + pow(b - y, 2) + pow(c - z, 2));
+GLfloat distance(vec3 a, vec3 b) {
+	return sqrt(pow(a.x - b.x, 2) + pow(a.y - b.y, 2) + pow(a.z - b.z, 2));
 }
 
 void Camera::zoom(GLfloat ratio) {
-	GLfloat R = distance(eyeX, eyeY, eyeZ, centerX, centerY, centerZ);
+	GLfloat R = distance(eye, center);
 	R /= ratio;
-	eyeX = centerX + R * sin(horizontal) * cos(vertical);
-	eyeY = centerY + R * sin(vertical);
-	eyeZ = centerZ + R * cos(horizontal) * cos(vertical);
+	eye.x = center.x + R * sin(horizontal) * cos(vertical);
+	eye.y = center.y + R * sin(vertical);
+	eye.z = center.z + R * cos(horizontal) * cos(vertical);
 	update();
 }
 
 void Camera::rotate(GLfloat dVertical, GLfloat dHorizontal) {
-	GLfloat R = distance(eyeX, eyeY, eyeZ, centerX, centerY, centerZ);
+	GLfloat R = distance(eye, center);
 	vertical += dVertical;
 	horizontal += dHorizontal;
-	eyeX = centerX + R * sin(horizontal) * cos(vertical);
-	eyeY = centerY + R * sin(vertical);
-	eyeZ = centerZ + R * cos(horizontal) * cos(vertical);
+	eye.x = center.x + R * sin(horizontal) * cos(vertical);
+	eye.y = center.y + R * sin(vertical);
+	eye.z = center.z + R * cos(horizontal) * cos(vertical);
 	update();
 }
 
@@ -65,5 +60,5 @@ void Camera::update() {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(viewAngle, aspect, zNear, zFar);
-	gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, 0, 1, 0);
+	gluLookAt(eye.x, eye.y, eye.z, center.x, center.y, center.z, 0, 1, 0);
 }

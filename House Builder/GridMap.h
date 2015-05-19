@@ -19,8 +19,8 @@ public:
 	GLfloat getWidth();
 	GLfloat getHeight();
 	Instance* getInstanceAt(int x, int y);
-	void toGridLocation(GLfloat worldX, GLfloat worldY, int& x, int& y);
-	void toWorldLocation(GLfloat& worldX, GLfloat& worldY, int x, int y);
+	glm::vec2 getGridCoordinate(glm::vec3 worldCoordinate);
+	glm::vec3 getWorldCoordinate(int x, int y);
 	bool isPuttable(Instance* instance, int x, int y);
 	void put(Instance* instance, int x, int y);
 	void add(Instance* instance);

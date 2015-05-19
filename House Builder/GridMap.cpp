@@ -24,9 +24,11 @@ Instance* GridMap::getInstanceAt(int x, int y) {
 	return grid[x][y];
 }
 
-void GridMap::toGridLocation(GLfloat worldX, GLfloat worldY, int& x, int& y) {
-	x = (worldX - originX) / cellSize;
-	y = (worldY - originY) / cellSize;
+glm::vec2 GridMap::getGridCoordinate(glm::vec3 worldCoordinate) {
+	glm::vec2 result;
+	result.x = (worldCoordinate.x - originX) / cellSize;
+	result.y = (worldCoordinate.z - originY) / cellSize;
+	return result;
 }
 
 bool GridMap::isPuttable(Instance* instance, int x, int y) {
@@ -55,15 +57,17 @@ void GridMap::put(Instance* instance, int x, int y) {
 	box.x = x;
 	box.y = y;
 
-	GLfloat worldX, worldZ;
-	toWorldLocation(worldX, worldZ, x, y);
-	instance->x = worldX;
-	instance->z = worldZ;
+	glm::vec3 world = getWorldCoordinate(x, y);
+	instance->x = world.x;
+	instance->z = world.z;
 }
 
-void GridMap::toWorldLocation(GLfloat& worldX, GLfloat& worldY, int x, int y) {
-	worldX = x * cellSize + originX;
-	worldY = y * cellSize + originY;
+glm::vec3 GridMap::getWorldCoordinate(int x, int y) {
+	glm::vec3 result;
+	result.x = x * cellSize + originX;
+	result.z = y * cellSize + originY;
+	result.y = 0;
+	return result;
 }
 
 void GridMap::add(Instance* instance) {
