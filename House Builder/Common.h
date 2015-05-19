@@ -4,6 +4,7 @@
 #include <gl/GLU.h>
 #include <gl/GLUT.h>
 #include "Object.h"
+#include "Instance.h"
 #include "GridMap.h"
 #include "Camera.h"
 #include "Loader.h"
