@@ -2,6 +2,7 @@
 
 class Render {
 	GridMap* map;
+	void renderGridLayout();
 public:
 	Render();
 	void setGridMap(GridMap* map);

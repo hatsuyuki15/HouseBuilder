@@ -2,13 +2,31 @@
 
 using namespace std;
 
+GridMap::GridMap(GLfloat cellSize, GLfloat originX, GLfloat originY) {
+	this->cellSize = cellSize;
+	this->originX = originX;
+	this->originY = originY;
+}
+
+GLfloat GridMap::getWidth() {
+	return MAX_GRID_SIZE;
+}
+
+GLfloat GridMap::getHeight() {
+	return MAX_GRID_SIZE;
+}
+
+GLfloat GridMap::getCellSize() {
+	return cellSize;
+}
+
 Instance* GridMap::getInstanceAt(int x, int y) {
 	return grid[x][y];
 }
 
 void GridMap::toGridLocation(GLfloat worldX, GLfloat worldY, int& x, int& y) {
-	x = worldX / cellSize;
-	y = worldY / cellSize;
+	x = (worldX - originX) / cellSize;
+	y = (worldY - originY) / cellSize;
 }
 
 bool GridMap::isPuttable(Instance* instance, int x, int y) {
@@ -36,6 +54,16 @@ void GridMap::put(Instance* instance, int x, int y) {
 			grid[x + i][y + j] = instance;
 	box.x = x;
 	box.y = y;
+
+	GLfloat worldX, worldZ;
+	toWorldLocation(worldX, worldZ, x, y);
+	instance->x = worldX;
+	instance->z = worldZ;
+}
+
+void GridMap::toWorldLocation(GLfloat& worldX, GLfloat& worldY, int x, int y) {
+	worldX = x * cellSize + originX;
+	worldY = y * cellSize + originY;
 }
 
 void GridMap::add(Instance* instance) {

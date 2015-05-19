@@ -12,10 +12,10 @@ Camera::Camera() {
 	centerY = 0;
 	centerZ = 0;
 	horizontal = 0;
-	vertical = 0;
-	eyeX = centerX + R * sin(vertical) * cos(horizontal);
-	eyeY = centerY + R * sin(horizontal);
-	eyeZ = centerZ + R * cos(vertical) * cos(horizontal);
+	vertical = 0.3;
+	eyeX = centerX + R * sin(horizontal) * cos(vertical);
+	eyeY = centerY + R * sin(vertical);
+	eyeZ = centerZ + R * cos(horizontal) * cos(vertical);
 	update();
 }
 
@@ -45,9 +45,9 @@ GLfloat distance(GLfloat a, GLfloat b, GLfloat c, GLfloat x, GLfloat y, GLfloat 
 void Camera::zoom(GLfloat ratio) {
 	GLfloat R = distance(eyeX, eyeY, eyeZ, centerX, centerY, centerZ);
 	R /= ratio;
-	eyeX = centerX + R * sin(vertical) * cos(horizontal);
-	eyeY = centerY + R * sin(horizontal);
-	eyeZ = centerZ + R * cos(vertical) * cos(horizontal);
+	eyeX = centerX + R * sin(horizontal) * cos(vertical);
+	eyeY = centerY + R * sin(vertical);
+	eyeZ = centerZ + R * cos(horizontal) * cos(vertical);
 	update();
 }
 
@@ -55,9 +55,9 @@ void Camera::rotate(GLfloat dVertical, GLfloat dHorizontal) {
 	GLfloat R = distance(eyeX, eyeY, eyeZ, centerX, centerY, centerZ);
 	vertical += dVertical;
 	horizontal += dHorizontal;
-	eyeX = centerX + R * sin(vertical) * cos(horizontal);
-	eyeY = centerY + R * sin(horizontal);
-	eyeZ = centerZ + R * cos(vertical) * cos(horizontal);
+	eyeX = centerX + R * sin(horizontal) * cos(vertical);
+	eyeY = centerY + R * sin(vertical);
+	eyeZ = centerZ + R * cos(horizontal) * cos(vertical);
 	update();
 }
 

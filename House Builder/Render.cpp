@@ -9,17 +9,15 @@ Render::Render() {
 	glClearColor(1.0, 1.0, 1.0, 0.0);
 	glColor3f(0.0, 0.0, 0.0);
 	glPointSize(1.0);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	//TODO: default value for Orthor
-	glOrtho(-50, 50, -50, 50, -50, 50);
 }
 
 void Render::setGridMap(GridMap* map) {
 	this->map = map;
 }
-
+#include <iostream>
 void renderObj(Instance* instance) {
+	glPushMatrix();
+	glTranslatef(instance->x, instance->y, instance->z);
 	Object* obj = instance->obj;
 	for (int i = 0; i < obj->faces.size(); i++) {
 		face& f = obj->faces[i];
@@ -34,14 +32,36 @@ void renderObj(Instance* instance) {
 		}
 		glEnd();
 	}
+	glPopMatrix();
 }
 
 void Render::render() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	renderGridLayout();
 	vector<Instance*> instances = map->getInstances();
 	for (int i = 0; i < instances.size(); i++)
 		renderObj(instances[i]);
 	glFlush();
+	glMatrixMode(GL_PROJECTION);
+}
+
+void Render::renderGridLayout() {
+	int cellSize = map->getCellSize();
+	int width  = map->getWidth();
+	int height = map->getHeight();
+	GLfloat borderOX, borderOY, borderX, borderY;
+	map->toWorldLocation(borderOX, borderOY, 0, 0);
+	map->toWorldLocation(borderX, borderY, width - 1, height - 1);
+	glBegin(GL_LINES);
+	for (int i = 0; i < width; i++) {
+		glVertex3f(borderOX + cellSize * i, 0, borderOY);
+		glVertex3f(borderOX + cellSize * i, 0, borderY);
+	}
+	for (int i = 0; i < height; i++) {
+		glVertex3f(borderOX, 0, borderOY + cellSize * i);
+		glVertex3f(borderX, 0,  borderOY + cellSize * i);
+	}
+	glEnd();
 }
