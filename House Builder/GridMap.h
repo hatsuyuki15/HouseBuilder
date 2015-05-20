@@ -1,5 +1,4 @@
 #include "Common.h"
-#define MASK -1
 
 const int MAX_GRID_SIZE = 1000;
 

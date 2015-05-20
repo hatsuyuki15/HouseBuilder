@@ -1,6 +1,9 @@
 #include "Common.h"
-
+  
 using namespace std;
+
+Instance* MASK = (Instance*)-1;
+
 
 GridMap::GridMap(GLfloat cellSize, GLfloat originX, GLfloat originY) {
 	this->cellSize = cellSize;
@@ -26,7 +29,7 @@ bool GridMap::isInsideGrid(int x, int y) {
 }
 
 Instance* GridMap::getInstanceAt(int x, int y) {
-	if (!isInsideGrid(x, y) || (int)grid[x][y] == MASK)
+	if (!isInsideGrid(x, y) || grid[x][y] == MASK)
 		return NULL;
 	return grid[x][y];
 }
@@ -89,7 +92,15 @@ void GridMap::add(Instance* instance) {
 }
 
 void GridMap::addMask(Instance* instance) {
-
+	const float epsilon = 0.1;
+	vector<vertex>& vertexs = instance->obj->vertexs;
+	for (int i = 0; i < vertexs.size(); i++) {
+		if (vertexs[i].y < epsilon) {
+			glm::vec2 p = getGridCoordinate(vertexs[i]);
+			if (isInsideGrid(p.x, p.y))
+				grid[(int)p.x][(int)p.y] = MASK;
+		}
+	}
 }
 
 void GridMap::remove(Instance* instance) {
