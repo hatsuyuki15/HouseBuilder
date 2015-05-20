@@ -20,7 +20,7 @@ Render::Render() {
 	glLightfv(GL_LIGHT0, GL_POSITION, position);
 
 	//clipping plane
-	double eqr[] = { 0.0f, -1.0f, 0.0f, 0.0f };
+	double eqr[] = { 0.0f, -1.0f, 0.0f, 20 };
 	glClipPlane(GL_CLIP_PLANE0, eqr);
 }
 
