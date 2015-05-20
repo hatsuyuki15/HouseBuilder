@@ -2,18 +2,20 @@
 
 using namespace glm;
 
+ObjectManager* manager;
 Render* render;
 Camera* camera;
 GridMap* map;
-Object* obj1;
 Instance* selectedInstance;
+Instance* house;
 vec2 lastGridPosition;
 
 void loadData() {
 	map = new GridMap(30, -450, -900);
-	Loader* loader = Loader::getInstance();
-	obj1 = loader->read("E:\\Downloads\\nielsen\\nielsen.obj");
-//	obj1 = loader->read("E:\\Downloads\\house\\house.obj");
+	manager = ObjectManager::getInstance();
+	house = new Instance(manager->getHouse());
+	house->transform = manager->getHouseTransform();
+	map->addMask(house);
 }
 
 void init() {
@@ -65,13 +67,29 @@ void onKeypressed(unsigned char key, int mouseX, int mouseY) {
 	case 'i':
 		camera->rotate(0, 0.2);
 		break;
-	case 'n':
-		selectedInstance = new Instance(obj1);
+	case '1':
+		selectedInstance = new Instance(manager->objs[0]);
+		selectedInstance->hightlight = true;
 		map->add(selectedInstance);
 		break;
-	case 'g':
+	case '2':
+		selectedInstance = new Instance(manager->objs[1]);
+		selectedInstance->hightlight = true;
+		map->add(selectedInstance);
+		break;
+	case '3':
+		selectedInstance = new Instance(manager->objs[2]);
+		selectedInstance->hightlight = true;
+		map->add(selectedInstance);
+		break;
+	case 'g': {
 		Loader* loader = Loader::getInstance();
 		loader->export("save.obj", map->getInstances());
+		break;
+	}
+	case 'h':
+		house->clipping = !house->clipping;
+		break;
 	}
 	glutPostRedisplay();
 }

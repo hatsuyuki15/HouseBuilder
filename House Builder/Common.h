@@ -2,12 +2,8 @@
 #include <windows.h>
 #include <gl/GL.h>
 #include <gl/GLU.h>
-//#include <GL\freeglut.h>
-#include <SDL.h>
-#include <SDL_ttf.h>
-#include <glm\glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
+#include <GL/glut.h>
+#include <glm/glm.hpp>
 #include "Object.h"
 #include "Instance.h"
 #include "GridMap.h"
@@ -16,3 +12,4 @@
 #include "Object2D.h"
 #include "HUD.h"
 #include "Render.h"
+#include "ObjectManager.h"
