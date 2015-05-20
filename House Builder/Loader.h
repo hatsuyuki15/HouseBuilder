@@ -1,5 +1,4 @@
 #include "Common.h"
-#include <string>
 
 class Loader {
 	static Loader* handle;
@@ -8,4 +7,6 @@ public:
 	static Loader* getInstance();
 	Object* read(std::string file);
 	void export(std::string file, std::vector<Instance*>& instances);
+	GLuint loadTexture(std::string file);
+	void Loader::readMaterial(std::string file, Object* obj);
 };

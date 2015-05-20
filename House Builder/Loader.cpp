@@ -12,7 +12,7 @@ string getAbsolutePath(string siblingFile, char fileName[]) {
 	return directory + string(fileName);
 }
 
-GLuint loadTexture(string file) {
+GLuint Loader::loadTexture(string file) {
 	unsigned int imageID;
 	ilInit();
 	ilGenImages(1, &imageID);
@@ -35,7 +35,7 @@ GLuint loadTexture(string file) {
 	return textureID;
 }
 
-void readMaterial(string file, Object* obj) {
+void Loader::readMaterial(string file, Object* obj) {
 	FILE* in = fopen(file.c_str(), "r");
 	char line[256];
 	material* mtl = new material;
