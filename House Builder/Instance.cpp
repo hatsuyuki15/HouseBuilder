@@ -6,4 +6,5 @@ Instance::Instance(Object* obj) {
 	x = y = z = 0;
 	hightlight = true;
 	clipping = false;
+	moveable = true;
 }

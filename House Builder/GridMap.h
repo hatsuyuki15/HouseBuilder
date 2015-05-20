@@ -1,4 +1,5 @@
 #include "Common.h"
+#define MASK -1
 
 const int MAX_GRID_SIZE = 1000;
 
@@ -13,6 +14,7 @@ class GridMap {
 	GLfloat originX, originY;
 	Instance* grid[MAX_GRID_SIZE][MAX_GRID_SIZE];
 	std::map<Instance*, BBox> bmap;
+	bool isInsideGrid(int x, int y);
 public:
 	GridMap(GLfloat cellSize, GLfloat originX, GLfloat originY);
 	GLfloat getCellSize();
@@ -24,6 +26,8 @@ public:
 	bool isPuttable(Instance* instance, int x, int y);
 	void put(Instance* instance, int x, int y);
 	void add(Instance* instance);
+	void addMask(Instance *instance);
+	void remove(Instance* instance);
 	std::vector<Instance*> getInstances();
 };
 

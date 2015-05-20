@@ -7,6 +7,7 @@ public:
 	GLfloat vertical, horizontal;
 	bool hightlight;
 	bool clipping;
+	bool moveable;
 	Instance(Object* object);
 };
 
