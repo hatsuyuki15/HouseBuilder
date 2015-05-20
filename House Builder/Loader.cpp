@@ -136,39 +136,50 @@ Object* Loader::read(string file) {
 	return obj;
 }
 
-void Loader::write(string file, Object* obj) {
+void Loader::export(string file, vector<Instance*>& instances) {
 	FILE* out = fopen(file.c_str(), "w");
-	//vertex
-	for (int i = 0; i < obj->vertexs.size(); i++) {
-		vertex& v = obj->vertexs[i];
-		fprintf(out, "v %f %f %f\n", v.x, v.y, v.z);
-	}
-	//normal vertex
-	for (int i = 0; i < obj->nvertexs.size(); i++) {
-		vertex& v = obj->nvertexs[i];
-		fprintf(out, "vn %f %f %f\n", v.x, v.y, v.z);
-	}
-	//texture vertex
-	for (int i = 0; i < obj->tvertexs.size(); i++) {
-		vertex& v = obj->tvertexs[i];
-		fprintf(out, "vt %f %f\n", v.x, v.y);
-	}
-	//face
-	material* lastMtl = NULL;
-	for (int i = 0; i < obj->faces.size(); i++) {
-		face& f = obj->faces[i];
-		if (f.mtl != lastMtl) {
-			fprintf(out, "usemtl %s\n", f.mtl->name);
-			lastMtl = f.mtl;
+	int numV, numVt, numVn;
+	numV = numVt = numVn = 0;
+	for (int i = 0; i < instances.size(); i++) {
+		Instance* ins = instances[i];
+		Object* obj = ins->obj;
+		//vertex
+		for (int i = 0; i < obj->vertexs.size(); i++) {
+			glm::vec3 v = obj->vertexs[i] + ins->transform;
+			fprintf(out, "v %f %f %f\n", v.x, v.y, v.z);
 		}
-		fprintf(out, "f");
-		for (int j; j < f.fv.size(); j++) {
-			fvertex& v = f.fv[j];
-			fprintf(out, " %i/%i/%i", v.iv, v.ivn, v.ivt);
+		//normal
+		for (int i = 0; i < obj->nvertexs.size(); i++) {
+			vertex& v = obj->nvertexs[i];
+			fprintf(out, "vn %f %f %f\n", v.x, v.y, v.z);
 		}
-		fprintf(out, "\n");
+		//texture
+		for (int i = 0; i < obj->tvertexs.size(); i++) {
+			vertex& v = obj->tvertexs[i];
+			fprintf(out, "vt %f %f %f\n", v.x, v.y, v.z);
+		}
+		//face
+		for (int i = 0; i < obj->faces.size(); i++) {
+			face& f = obj->faces[i];
+			fprintf(out, "f");
+			for (int j = 0; j < f.fv.size(); j++) {
+				fvertex& fv = f.fv[j];
+				if (fv.iv) fprintf(out, " %i", fv.iv + numV);
+				if (fv.ivt) fprintf(out, "/%i", fv.ivt + numVt);
+				if (fv.ivn) {
+					if (!fv.ivt)
+						fprintf(out, "//%i", fv.ivn + numVn);
+					else
+						fprintf(out, "/%i", fv.ivn + numVn);
+				}
+			}
+			fprintf(out, "\n");
+		}
+		numV += obj->vertexs.size();
+		numVt += obj->tvertexs.size();
+		numVn += obj->nvertexs.size();
 	}
-	fclose(out);
+	fclose(out);	
 }	
 
 Loader::Loader() {

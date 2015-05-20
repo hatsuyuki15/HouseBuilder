@@ -7,5 +7,5 @@ class Loader {
 public:
 	static Loader* getInstance();
 	Object* read(std::string file);
-	void write(std::string file, Object* obj);
+	void export(std::string file, std::vector<Instance*>& instances);
 };

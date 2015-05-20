@@ -12,8 +12,8 @@ vec2 lastGridPosition;
 void loadData() {
 	map = new GridMap(30, -450, -900);
 	Loader* loader = Loader::getInstance();
-//	obj1 = loader->read("E:\\Downloads\\nielsen\\nielsen.obj");
-	obj1 = loader->read("E:\\Downloads\\house\\house.obj");
+	obj1 = loader->read("E:\\Downloads\\nielsen\\nielsen.obj");
+//	obj1 = loader->read("E:\\Downloads\\house\\house.obj");
 }
 
 void init() {
@@ -69,6 +69,9 @@ void onKeypressed(unsigned char key, int mouseX, int mouseY) {
 		selectedInstance = new Instance(obj1);
 		map->add(selectedInstance);
 		break;
+	case 'g':
+		Loader* loader = Loader::getInstance();
+		loader->export("save.obj", map->getInstances());
 	}
 	glutPostRedisplay();
 }
