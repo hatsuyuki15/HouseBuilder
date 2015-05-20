@@ -32,7 +32,7 @@ GLuint loadTexture(string file) {
 		ilGetData());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	return imageID;
+	return textureID;
 }
 
 void readMaterial(string file, Object* obj) {
@@ -55,15 +55,15 @@ void readMaterial(string file, Object* obj) {
 		}
 		//lighting: ambient
 		if (strcmp(control, "Ka") == 0) {
-			sscanf(line, "Kd %f %f %f", &mtl->ambient.x, &mtl->ambient.y, &mtl->ambient.z);
+			sscanf(line, "Ka %f %f %f", &mtl->ambient[0], &mtl->ambient[1], &mtl->ambient[2]);
 		}
 		//lighting: specular
 		if (strcmp(control, "Ks") == 0) {
-			sscanf(line, "Ks %f %f %f", &mtl->specular.x, &mtl->specular.y, &mtl->specular.z);
+			sscanf(line, "Ks %f %f %f", &mtl->specular[0], &mtl->specular[1], &mtl->specular[2]);
 		}
 		//lighting: diffuse
 		if (strcmp(control, "Kd") == 0) {
-			sscanf(line, "Ka %f %f %f", &mtl->diffuse.x, &mtl->diffuse.y, &mtl->diffuse.z);
+			sscanf(line, "Kd %f %f %f", &mtl->diffuse[0], &mtl->diffuse[1], &mtl->diffuse[2]);
 		}
 		//lighting: image
 		if (strcmp(control, "map_Kd") == 0) {
