@@ -77,9 +77,9 @@ void readMaterial(string file, Object* obj) {
 
 Object* Loader::read(string file) {
 	Object* obj = new Object();
+	material* mtl = NULL;
 	FILE* in = fopen(file.c_str(), "r");
 	char line[256];
-	material* mtl = NULL;
 	while (fgets(line, sizeof(line), in)) {
 		char control[256];
 		//empty or invalid line
@@ -118,10 +118,14 @@ Object* Loader::read(string file) {
 		//face
 		if (strcmp(control, "f") == 0) {
 			face f;
-			fvertex fv;
 			int offset, pos = 2;
-			while (sscanf(&line[pos], "%i/%i/%i %n", &fv.iv, &fv.ivt, &fv.ivn, &offset) > 0) {
-				f.fv.push_back(fv);
+			char set[256];
+			while (sscanf(&line[pos], "%s %n", set, &offset) > 0) {
+				fvertex v;
+				v.iv = v.ivn = v.ivt = 0;
+				sscanf(set, "%i/%i/%i", &v.iv, &v.ivt, &v.ivn);
+				sscanf(set, "%i//%i", &v.iv, &v.ivn);
+				f.fv.push_back(v);
 				pos += offset;
 			}
 			f.mtl = mtl;

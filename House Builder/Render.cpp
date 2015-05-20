@@ -38,8 +38,10 @@ void renderObj(Instance* instance) {
 			for (int j = 0; j < f.fv.size(); j++) {
 				fvertex& fv = f.fv[j];
 				vertex& v = obj->vertexs[fv.iv - 1];
-				vertex& vn = obj->nvertexs[fv.ivn - 1];
-				glNormal3f(vn.x, vn.y, vn.z);
+				if (fv.ivn > 0) {
+					vertex& vn = obj->nvertexs[fv.ivn - 1];
+					glNormal3f(vn.x, vn.y, vn.z);
+				}
 				glVertex3f(v.x, v.y, v.z);
 			}
 			glEnd();
@@ -54,10 +56,14 @@ void renderObj(Instance* instance) {
 			for (int j = 0; j < f.fv.size(); j++) {
 				fvertex& fv = f.fv[j];
 				vertex& v = obj->vertexs[fv.iv - 1];
-				vertex& vn = obj->nvertexs[fv.ivn - 1];
-				vertex& vt = obj->tvertexs[fv.ivt - 1];
-				glNormal3f(vn.x, vn.y, vn.z);
-				glTexCoord2f(vt.x, vt.y);
+				if (fv.ivn > 0) {
+					vertex& vn = obj->nvertexs[fv.ivn - 1];
+					glNormal3f(vn.x, vn.y, vn.z);
+				}
+				if (fv.ivt > 0) {
+					vertex& vt = obj->tvertexs[fv.ivt - 1];
+					glTexCoord2f(vt.x, vt.y);
+				}			
 				glVertex3f(v.x, v.y, v.z);
 			}
 			glEnd();
