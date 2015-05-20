@@ -6,6 +6,7 @@ GridMap::GridMap(GLfloat cellSize, GLfloat originX, GLfloat originY) {
 	this->cellSize = cellSize;
 	this->originX = originX;
 	this->originY = originY;
+	memset(grid, NULL, sizeof(grid[0][0]) * getWidth() * getHeight());
 }
 
 GLfloat GridMap::getWidth() {
@@ -20,7 +21,13 @@ GLfloat GridMap::getCellSize() {
 	return cellSize;
 }
 
+bool GridMap::isInsideGrid(int x, int y) {
+	return x >= 0 && x < getWidth() && y >= 0 && y < getHeight();
+}
+
 Instance* GridMap::getInstanceAt(int x, int y) {
+	if (!isInsideGrid(x, y) || (int)grid[x][y] == MASK)
+		return NULL;
 	return grid[x][y];
 }
 
@@ -34,9 +41,12 @@ glm::vec2 GridMap::getGridCoordinate(glm::vec3 worldCoordinate) {
 bool GridMap::isPuttable(Instance* instance, int x, int y) {
 	BBox& box = bmap[instance];
 	for (int i = 0; i < box.width; i++)
-		for (int j = 0; j < box.height; j++)
-			if (grid[x + i][y + j])
+		for (int j = 0; j < box.height; j++) {
+			int p = x + i;
+			int q = y + j;
+			if (!isInsideGrid(p, q) || (grid[p][q] != instance && grid[p][q]))
 				return false;
+		}
 	return true;
 }
 
@@ -69,11 +79,24 @@ glm::vec3 GridMap::getWorldCoordinate(int x, int y) {
 	result.y = 0;
 	return result;
 }
-
+#include <iostream>
 void GridMap::add(Instance* instance) {
 	BBox* box = new BBox();
 	box->standby = true;
+	box->width  = ceil(instance->obj->getWidth() / cellSize);
+	box->height = ceil(instance->obj->getHeight() / cellSize);
+	std::cout << box->width << endl;
 	bmap[instance] = *box;
+}
+
+void GridMap::addMask(Instance* instance) {
+
+}
+
+void GridMap::remove(Instance* instance) {
+	map<Instance*, BBox>::iterator it;
+	it = bmap.find(instance);
+	bmap.erase(it);
 }
 
 vector<Instance*> GridMap::getInstances() {

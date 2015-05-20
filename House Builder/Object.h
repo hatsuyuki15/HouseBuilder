@@ -7,9 +7,9 @@ typedef glm::vec3 vertex;
 struct material {
 	std::string name;
 	GLuint textureID;
-	glm::vec3 ambient;
-	glm::vec3 diffuse;
-	glm::vec3 specular;
+	GLfloat ambient[3];
+	GLfloat diffuse[3];
+	GLfloat specular[3];
 };
 
 struct fvertex {
@@ -22,7 +22,13 @@ struct face {
 };
 
 struct Object {
+	GLfloat width, height;
+	void calculateSize();
+public:
 	std::vector<vertex> vertexs, nvertexs, tvertexs;
 	std::vector<face> faces;
 	std::map<std::string, material*> materials;
+	Object();
+	GLfloat getWidth();
+	GLfloat getHeight();
 };
