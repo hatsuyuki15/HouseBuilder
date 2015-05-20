@@ -112,7 +112,7 @@ void onMouseMove(int mouseX, int mouseY) {
 }
 
 void onMouseClick(int button, int state, int mouseX, int mouseY) {
-	if (button == GLUT_LEFT_BUTTON) {
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
 		vec3 world = getWorldCoordinate(mouseX, mouseY);
 		vec2 position = map->getGridCoordinate(world);
 		if (selectedInstance) {
@@ -123,6 +123,10 @@ void onMouseClick(int button, int state, int mouseX, int mouseY) {
 			}
 		} else {
 			selectedInstance = map->getInstanceAt(position.x, position.y);
+			if (selectedInstance) {
+				selectedInstance->hightlight = true;
+				glutPostRedisplay();
+			}
 		}
 	}
 }
