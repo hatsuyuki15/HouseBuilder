@@ -92,17 +92,15 @@ void GridMap::add(Instance* instance) {
 }
 
 void GridMap::addMask(Instance* instance) {
-	const float epsilon = 1;
+	const float epsilon = 0.1;
 	vector<vertex>& vertexs = instance->obj->vertexs;
 	for (int i = 0; i < vertexs.size(); i++) {
-		vertex v = vertexs[i] + instance->transform;
-		if (abs(v.y) < epsilon) {
-			glm::vec2 p = getGridCoordinate(v);
+		if (vertexs[i].y < epsilon) {
+			glm::vec2 p = getGridCoordinate(vertexs[i]);
 			if (isInsideGrid(p.x, p.y))
 				grid[(int)p.x][(int)p.y] = MASK;
 		}
 	}
-	bmap[instance] = *(new BBox());
 }
 
 void GridMap::remove(Instance* instance) {

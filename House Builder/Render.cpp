@@ -10,16 +10,7 @@ Render::Render() {
 	glColor3f(0.0, 0.0, 0.0);
 	glPointSize(1.0);
 
-	//lighting
-	GLfloat diffuseLight[] = { 1.0f, 1.0f, 1.0, 1.0f };
-	GLfloat position[] = { 0, 10, 0, 1.0f };
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
-	glLightfv(GL_LIGHT0, GL_POSITION, position);
-
-	//clipping plane
-	double eqr[] = { 0.0f, -1.0f, 0.0f, 20 };
+	double eqr[] = { 0.0f, -1.0f, 0.0f, 0.0f };
 	glClipPlane(GL_CLIP_PLANE0, eqr);
 }
 
