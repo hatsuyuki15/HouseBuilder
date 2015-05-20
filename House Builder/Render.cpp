@@ -9,29 +9,62 @@ Render::Render() {
 	glClearColor(1.0, 1.0, 1.0, 0.0);
 	glColor3f(0.0, 0.0, 0.0);
 	glPointSize(1.0);
+
+	double eqr[] = { 0.0f, -1.0f, 0.0f, 0.0f };
+	glClipPlane(GL_CLIP_PLANE0, eqr);
 }
 
 void Render::setGridMap(GridMap* map) {
 	this->map = map;
 }
-#include <iostream>
+
 void renderObj(Instance* instance) {
 	glPushMatrix();
+
+	//transformation
 	glTranslatef(instance->x, instance->y, instance->z);
+	
+	//clipping
+	if (instance->clipping) 	
+		glEnable(GL_CLIP_PLANE0);
+	
+	//rendering
 	Object* obj = instance->obj;
 	for (int i = 0; i < obj->faces.size(); i++) {
 		face& f = obj->faces[i];
-		glBindTexture(GL_TEXTURE_2D, (f.mtl)->textureID);
-		glBegin(GL_POLYGON);
-		for (int j = 0; j < f.fv.size(); j++) {
-			fvertex& fv = f.fv[j];
-			vertex& v  = obj->vertexs[fv.iv - 1];
-			vertex& vt = obj->tvertexs[fv.ivt - 1];
-			glTexCoord2f(vt.x, vt.y);
-			glVertex3f(v.x, v.y, v.z);
+		if (instance->hightlight) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glBegin(GL_POLYGON);
+			for (int j = 0; j < f.fv.size(); j++) {
+				fvertex& fv = f.fv[j];
+				vertex& v = obj->vertexs[fv.iv - 1];
+				vertex& vn = obj->nvertexs[fv.ivn - 1];
+				glNormal3f(vn.x, vn.y, vn.z);
+				glVertex3f(v.x, v.y, v.z);
+			}
+			glEnd();
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
-		glEnd();
+		else {
+			glMaterialfv(GL_FRONT, GL_AMBIENT, f.mtl->ambient);
+			glMaterialfv(GL_FRONT, GL_DIFFUSE, f.mtl->diffuse);
+			glMaterialfv(GL_FRONT, GL_SPECULAR, f.mtl->specular);
+			glBindTexture(GL_TEXTURE_2D, f.mtl->textureID);
+			glBegin(GL_POLYGON);
+			for (int j = 0; j < f.fv.size(); j++) {
+				fvertex& fv = f.fv[j];
+				vertex& v = obj->vertexs[fv.iv - 1];
+				vertex& vn = obj->nvertexs[fv.ivn - 1];
+				vertex& vt = obj->tvertexs[fv.ivt - 1];
+				glNormal3f(vn.x, vn.y, vn.z);
+				glTexCoord2f(vt.x, vt.y);
+				glVertex3f(v.x, v.y, v.z);
+			}
+			glEnd();
+		}
 	}
+	
+	glDisable(GL_CLIP_PLANE0);
 	glPopMatrix();
 }
 
