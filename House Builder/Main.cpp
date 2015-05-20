@@ -12,7 +12,8 @@ vec2 lastGridPosition;
 void loadData() {
 	map = new GridMap(30, -450, -900);
 	Loader* loader = Loader::getInstance();
-	obj1 = loader->read("E:\\Downloads\\nielsen\\nielsen.obj");
+//	obj1 = loader->read("E:\\Downloads\\nielsen\\nielsen.obj");
+	obj1 = loader->read("E:\\Downloads\\house\\house.obj");
 }
 
 void init() {
