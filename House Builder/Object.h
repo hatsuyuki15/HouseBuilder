@@ -24,11 +24,13 @@ struct face {
 struct Object {
 	GLfloat width, height;
 	void calculateSize();
+	char *name;
 public:
 	std::vector<vertex> vertexs, nvertexs, tvertexs;
 	std::vector<face> faces;
 	std::map<std::string, material*> materials;
 	Object();
+	void setName(char name[]);
 	GLfloat getWidth();
 	GLfloat getHeight();
 };

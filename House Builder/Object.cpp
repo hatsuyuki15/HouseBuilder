@@ -33,3 +33,10 @@ void Object::calculateSize() {
 	width = maxX - minX;
 	height = maxZ - minZ;
 }
+
+void Object::setName(char name[]){
+	int l = strlen(name);
+	this->name = new char[l + 1];
+	strncpy(this->name, name, l);
+	this->name[l] = 0;
+}

@@ -18,7 +18,9 @@ using namespace glm;
 Render* render;
 Camera* camera;
 GridMap* map;
+HUD* hud;
 Object* obj1;
+Object2D* obj2;
 Instance* selectedInstance;
 vec2 lastGridPosition;
 
@@ -31,8 +33,15 @@ void quit(int code){
 
 void loadData() {
 	map = new GridMap(30, -450, -900);
+	hud = new HUD();
 	Loader* loader = Loader::getInstance();
 	obj1 = loader->read("res\\nielsen\\nielsen.obj");
+	obj2 = new Object2D("res\\hud.jpg");
+	obj2->position = vec2(0, 0);
+	obj2->width = 800;
+	obj2->height = 127;
+	obj2->setName("Huspro");
+	hud->add(obj2);
 	//	obj1 = loader->read("E:\\Downloads\\house\\house.obj");
 }
 
@@ -40,6 +49,7 @@ void init() {
 	loadData();
 	render = new Render();
 	render->setGridMap(map);
+	render->setHud(hud);
 	camera = Camera::getCamera();
 }
 
@@ -94,7 +104,7 @@ vec3 getWorldCoordinate(int mouseX, int mouseY) {
 	glGetIntegerv(GL_VIEWPORT, viewport);
 
 	winX = (float)mouseX;
-	winY = (float)viewport[3] - (float)mouseY;	
+	winY = (float)viewport[3] - (float)mouseY;
 	gluUnProject(winX, winY, 0, modelview, projection, viewport, &posX, &posY, &posZ);
 	vec3 oN = vec3(posX, posY, posZ);
 	gluUnProject(winX, winY, 1, modelview, projection, viewport, &posX, &posY, &posZ);
@@ -122,6 +132,11 @@ void onMouseMove(int mouseX, int mouseY) {
 }
 
 void onMouseLeftClick(int mouseX, int mouseY) {
+	Object2D* hit = hud->getObjectByXY(mouseX, windowHeight - mouseY);
+	if (hit){
+		printf("%s\n", hit->name);
+		return;
+	}
 	vec3 world = getWorldCoordinate(mouseX, mouseY);
 	vec2 position = map->getGridCoordinate(world);
 	if (selectedInstance) {

@@ -18,6 +18,10 @@ void Render::setGridMap(GridMap* map) {
 	this->map = map;
 }
 
+void Render::setHud(HUD* hud) {
+	this->hud = hud;	
+}
+
 void renderObj(Instance* instance) {
 	glPushMatrix();
 
@@ -74,6 +78,42 @@ void renderObj(Instance* instance) {
 	glPopMatrix();
 }
 
+
+void renderObj2D(Object2D* obj) {
+	glPushMatrix();
+
+	//transformation
+	glTranslatef(obj->position.x, obj->position.y, 0);
+
+	//rendering	
+	bool use_texture = (obj->textureID >= 0);
+	
+	if (use_texture) {
+		glBindTexture(GL_TEXTURE_2D, obj->textureID);
+		glBegin(GL_POLYGON);
+			glTexCoord2d(0, 0);
+			glVertex2i(0, 0);
+			glTexCoord2d(1, 0);
+			glVertex2i(obj->width, 0);
+			glTexCoord2d(1, 1);
+			glVertex2i(obj->width, obj->height);
+			glTexCoord2d(0, 1);
+			glVertex2i(0, obj->height);
+		glEnd();
+	}
+	else {
+		glBegin(GL_POLYGON);		
+			glVertex2i(obj->height, 0);
+			glVertex2i(obj->height, obj->width);
+			glVertex2i(0, obj->width);
+			glVertex2i(0, 0);
+		glEnd();
+	}
+	glPopMatrix();
+}
+
+
+
 void Render::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
@@ -82,8 +122,38 @@ void Render::render() {
 	vector<Instance*> instances = map->getInstances();
 	for (int i = 0; i < instances.size(); i++)
 		renderObj(instances[i]);
-	glFlush();
 	glMatrixMode(GL_PROJECTION);
+	renderHud();
+}
+
+void Render::renderHud() {
+	if (!hud) {
+		printf("Can't find HUD instance\n");
+		return;
+	}
+	
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glDisable(GL_DEPTH_TEST);
+
+	gluOrtho2D(0, 800, 0, 600);
+	vector<Object2D*> objlist = hud->getObjectList();
+
+	for (int i = 0; i < objlist.size(); i++){
+		renderObj2D(objlist[i]);
+	}
+
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glEnable(GL_DEPTH_TEST);
 }
 
 void Render::renderGridLayout() {

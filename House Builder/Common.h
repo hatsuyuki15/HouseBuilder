@@ -13,4 +13,6 @@
 #include "GridMap.h"
 #include "Camera.h"
 #include "Loader.h"
+#include "Object2D.h"
+#include "HUD.h"
 #include "Render.h"
