@@ -3,7 +3,7 @@
 class Instance {
 public:
 	Object* obj;
-	GLfloat x, y, z;
+	glm::vec3 transform;
 	GLfloat vertical, horizontal;
 	bool hightlight;
 	bool clipping;

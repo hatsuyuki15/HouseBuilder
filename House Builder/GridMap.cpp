@@ -71,8 +71,8 @@ void GridMap::put(Instance* instance, int x, int y) {
 	box.y = y;
 
 	glm::vec3 world = getWorldCoordinate(x, y);
-	instance->x = world.x;
-	instance->z = world.z;
+	instance->transform.x = world.x;
+	instance->transform.z = world.z;
 }
 
 glm::vec3 GridMap::getWorldCoordinate(int x, int y) {

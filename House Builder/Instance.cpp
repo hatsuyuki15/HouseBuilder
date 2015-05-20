@@ -3,7 +3,7 @@
 
 Instance::Instance(Object* obj) {
 	this->obj = obj;
-	x = y = z = 0;
+	transform = glm::vec3(0, 0, 0);
 	hightlight = true;
 	clipping = false;
 	moveable = true;

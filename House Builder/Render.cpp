@@ -22,7 +22,7 @@ void renderObj(Instance* instance) {
 	glPushMatrix();
 
 	//transformation
-	glTranslatef(instance->x, instance->y, instance->z);
+	glTranslatef(instance->transform.x, instance->transform.y, instance->transform.z);
 	
 	//clipping
 	if (instance->clipping) 	
