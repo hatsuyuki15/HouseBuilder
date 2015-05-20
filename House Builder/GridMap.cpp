@@ -79,13 +79,12 @@ glm::vec3 GridMap::getWorldCoordinate(int x, int y) {
 	result.y = 0;
 	return result;
 }
-#include <iostream>
+
 void GridMap::add(Instance* instance) {
 	BBox* box = new BBox();
 	box->standby = true;
 	box->width  = ceil(instance->obj->getWidth() / cellSize);
 	box->height = ceil(instance->obj->getHeight() / cellSize);
-	std::cout << box->width << endl;
 	bmap[instance] = *box;
 }
 
