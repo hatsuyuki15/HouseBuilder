@@ -4,7 +4,7 @@ using namespace glm;
 
 Camera::Camera() {	
 	viewAngle = 45;
-	aspect = 1;
+	aspect = 4.0 / 3.0;
 	zNear = 0.1;
 	zFar = 1000;
 	
