@@ -6,7 +6,7 @@ Render* render;
 Camera* camera;
 GridMap* map;
 Object* obj1;
-Instance* instance;
+Instance* selectedInstance;
 vec2 lastGridPosition;
 
 void loadData() {
@@ -22,11 +22,11 @@ void init() {
 	camera = Camera::getCamera();
 }
 
-void myDisplay( void )  {
+void onDrawing( void )  {
 	render->render();
 }
 
-void myKeyboard(unsigned char key, int mouseX, int mouseY) {
+void onKeypressed(unsigned char key, int mouseX, int mouseY) {
 	switch (key) {
 	case 'a':
 		camera->move(1, 0, 0);
@@ -65,8 +65,8 @@ void myKeyboard(unsigned char key, int mouseX, int mouseY) {
 		camera->rotate(0, 0.2);
 		break;
 	case 'n':
-		instance = new Instance(obj1);
-		map->add(instance);
+		selectedInstance = new Instance(obj1);
+		map->add(selectedInstance);
 		break;
 	}
 	glutPostRedisplay();
@@ -99,30 +99,47 @@ vec3 getWorldCoordinate(int mouseX, int mouseY) {
 	}
 }
 
-void myMouse(int mouseX, int mouseY) {
-	if (instance) {
+void onMouseMove(int mouseX, int mouseY) {
+	if (selectedInstance) {
 		vec3 world = getWorldCoordinate(mouseX, mouseY);
 		vec2 position = map->getGridCoordinate(world);
 		if (position != lastGridPosition) {
-			map->put(instance, position.x, position.y);
+			map->put(selectedInstance, position.x, position.y);
 			lastGridPosition = position;
 			glutPostRedisplay();
 		}
 	}
 }
 
+void onMouseClick(int button, int state, int mouseX, int mouseY) {
+	if (button == GLUT_LEFT_BUTTON) {
+		vec3 world = getWorldCoordinate(mouseX, mouseY);
+		vec2 position = map->getGridCoordinate(world);
+		if (selectedInstance) {
+			if (map->isPuttable(selectedInstance, position.x, position.y)) {
+				selectedInstance->hightlight = false;
+				selectedInstance = NULL;
+				glutPostRedisplay();
+			}
+		} else {
+			selectedInstance = map->getInstanceAt(position.x, position.y);
+		}
+	}
+}
+
 
 int main( int argc, char *argv[] )  {
-  glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
-  glutInitWindowSize(640, 480);
-  glutInitWindowPosition(100, 150);
-  glutCreateWindow("House Builder");
-  glutDisplayFunc(myDisplay);
-  glutKeyboardFunc(myKeyboard);
-  glutPassiveMotionFunc(myMouse);
-  init();
-  glutMainLoop( );
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
+	glutInitWindowSize(640, 480);
+    glutInitWindowPosition(100, 150);
+	glutCreateWindow("House Builder");
+	glutDisplayFunc(onDrawing);
+	glutKeyboardFunc(onKeypressed);
+	glutMouseFunc(onMouseClick);
+	glutPassiveMotionFunc(onMouseMove);
+	init();
+	glutMainLoop( );
 }
 
 /* ----------------------------------------------------------------------- */
