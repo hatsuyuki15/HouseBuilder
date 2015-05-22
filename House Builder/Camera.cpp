@@ -1,21 +1,21 @@
 #include "Common.h"
-#include <cmath>
-using namespace glm;
 
-Camera::Camera() {	
-	viewAngle = 45;
-	aspect = 4.0 / 3.0;
-	zNear = 0.1;
-	zFar = 1000;
-	
-	GLfloat R = 100;
-	center = vec3(0, 0, 0);
-	horizontal = 0;
-	vertical = 0.3;
-	eye.x = center.x + R * sin(horizontal) * cos(vertical);
-	eye.y = center.y + R * sin(vertical);
-	eye.z = center.z + R * cos(horizontal) * cos(vertical);
-	update();
+Camera::Camera() {
+	eye = glm::vec3(0, 300, 700);
+	look = glm::vec3(0, 0, 0);
+	up = glm::vec3(0, 7, -3);
+
+	viewAngle = 45.0;
+	aspect = 4.0f / 3.0f;
+	nearPlane = 0.1;
+	farPlane = 2000;
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(viewAngle, aspect, nearPlane, farPlane);
+	glMatrixMode(GL_MODELVIEW);
+	resetCamera();
+	rotate(0, -0.5);
 }
 
 Camera* Camera::handle;
@@ -26,39 +26,54 @@ Camera* Camera::getCamera() {
 	return handle;
 }
 
-void Camera::move(GLfloat deltaX, GLfloat deltaY, GLfloat deltaZ) {
-	eye    += vec3(deltaX, deltaY, deltaZ);
-	center += vec3(deltaX, deltaY, deltaZ);
-	update();
+void Camera::resetCamera() {
+	modelMatrix = glm::mat4(1.0f);
+	projectionMatrix = glm::perspective(viewAngle, aspect, nearPlane, farPlane);
+	loadModelViewProjectionMatrix();
+
 }
 
+void Camera::loadModelViewProjectionMatrix() {
+	glMatrixMode(GL_PROJECTION);
+	viewMatrix = glm::lookAt(eye, look, up);
+	glm::mat4 MVP = projectionMatrix * viewMatrix * modelMatrix;
+	glLoadMatrixf((GLfloat*)&MVP[0][0]);
+}
 
-GLfloat distance(vec3 a, vec3 b) {
-	return sqrt(pow(a.x - b.x, 2) + pow(a.y - b.y, 2) + pow(a.z - b.z, 2));
+void Camera::move(GLfloat deltaX, GLfloat deltaY, GLfloat deltaZ) {
+	glm::vec3 delta = glm::vec3(deltaX, deltaY, deltaZ);
+	eye += delta;
+	look += delta;
+	loadModelViewProjectionMatrix();
 }
 
 void Camera::zoom(GLfloat ratio) {
-	GLfloat R = distance(eye, center);
-	R /= ratio;
-	eye.x = center.x + R * sin(horizontal) * cos(vertical);
-	eye.y = center.y + R * sin(vertical);
-	eye.z = center.z + R * cos(horizontal) * cos(vertical);
-	update();
+	eye = (eye - look) / ratio + look;
+	loadModelViewProjectionMatrix();
 }
 
-void Camera::rotate(GLfloat dVertical, GLfloat dHorizontal) {
-	GLfloat R = distance(eye, center);
-	vertical += dVertical;
-	horizontal += dHorizontal;
-	eye.x = center.x + R * sin(horizontal) * cos(vertical);
-	eye.y = center.y + R * sin(vertical);
-	eye.z = center.z + R * cos(horizontal) * cos(vertical);
-	update();
+void Camera::rotate(GLfloat vertical, GLfloat horizontal) {
+	modelMatrix *= glm::rotate(vertical, glm::vec3(1, 0, 0));
+	modelMatrix *= glm::rotate(horizontal, glm::vec3(0, 1, 0));
+	loadModelViewProjectionMatrix();
 }
 
-void Camera::update() {
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(viewAngle, aspect, zNear, zFar);
-	gluLookAt(eye.x, eye.y, eye.z, center.x, center.y, center.z, 0, 1, 0);
+void Camera::setModelMatrix(const glm::mat4 &modelMatrix) {
+	this->modelMatrix = modelMatrix;
+	loadModelViewProjectionMatrix();
+}
+
+void Camera::resetModelMatrix() {
+	modelMatrix = glm::mat4(1.0f);
+	loadModelViewProjectionMatrix();
+}
+
+glm::mat4 Camera::getProjectionMatrix() {
+	return projectionMatrix;
+}
+
+glm::mat4 Camera::getModelViewMatrix() {
+	viewMatrix = glm::lookAt(eye, look, up);
+	glm::mat4 MV = viewMatrix * modelMatrix;
+	return MV;
 }

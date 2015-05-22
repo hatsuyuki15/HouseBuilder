@@ -2,7 +2,6 @@
 #include <windows.h>
 #include <gl/GL.h>
 #include <gl/GLU.h>
-//#include <GL\freeglut.h>
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <glm\glm.hpp>
@@ -10,6 +9,7 @@
 #include <glm/gtx/transform.hpp>
 #include "Object.h"
 #include "Instance.h"
+#include "ObjectManager.h"
 #include "GridMap.h"
 #include "Camera.h"
 #include "Loader.h"

@@ -14,16 +14,16 @@ class GridMap {
 	Instance* grid[MAX_GRID_SIZE][MAX_GRID_SIZE];
 	std::map<Instance*, BBox> bmap;
 	bool isInsideGrid(int x, int y);
+	bool isPuttable(Instance* instance, int x, int y);
 public:
-	GridMap(GLfloat cellSize, GLfloat originX, GLfloat originY);
+	GridMap(GLfloat cellSize);
 	GLfloat getCellSize();
 	GLfloat getWidth();
 	GLfloat getHeight();
 	Instance* getInstanceAt(int x, int y);
 	glm::vec2 getGridCoordinate(glm::vec3 worldCoordinate);
 	glm::vec3 getWorldCoordinate(int x, int y);
-	bool isPuttable(Instance* instance, int x, int y);
-	void put(Instance* instance, int x, int y);
+	bool put(Instance* instance, int x, int y, bool ghostMode);
 	void add(Instance* instance);
 	void addMask(Instance *instance);
 	void remove(Instance* instance);

@@ -38,7 +38,7 @@ GLuint Loader::loadTexture(string file) {
 void Loader::readMaterial(string file, Object* obj) {
 	FILE* in = fopen(file.c_str(), "r");
 	char line[256];
-	material* mtl = new material;
+	material* mtl = new material();
 	while (fgets(line, sizeof(line), in)) {
 		char control[256];
 		//empty or invalid line

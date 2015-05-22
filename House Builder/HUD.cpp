@@ -4,7 +4,6 @@ HUD::HUD() {
 }
 
 std::vector<Object2D*> HUD::getObjectList() {
-	printf("%d", objlist.size());
 	return objlist;
 }
 

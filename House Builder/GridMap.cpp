@@ -5,10 +5,10 @@ using namespace std;
 Instance* MASK = (Instance*)-1;
 
 
-GridMap::GridMap(GLfloat cellSize, GLfloat originX, GLfloat originY) {
+GridMap::GridMap(GLfloat cellSize) {
 	this->cellSize = cellSize;
-	this->originX = originX;
-	this->originY = originY;
+	originX = -getWidth()  * cellSize / 2;
+	originY = -getHeight() * cellSize / 2;
 	memset(grid, NULL, sizeof(grid[0][0]) * getWidth() * getHeight());
 }
 
@@ -36,8 +36,8 @@ Instance* GridMap::getInstanceAt(int x, int y) {
 
 glm::vec2 GridMap::getGridCoordinate(glm::vec3 worldCoordinate) {
 	glm::vec2 result;
-	result.x = (worldCoordinate.x - originX) / cellSize;
-	result.y = (worldCoordinate.z - originY) / cellSize;
+	result.x = (int)((worldCoordinate.x - originX) / cellSize);
+	result.y = (int)((worldCoordinate.z - originY) / cellSize);
 	return result;
 }
 
@@ -53,26 +53,30 @@ bool GridMap::isPuttable(Instance* instance, int x, int y) {
 	return true;
 }
 
-void GridMap::put(Instance* instance, int x, int y) {
-	if (!isPuttable(instance, x, y))
-		return;
+bool GridMap::put(Instance* instance, int x, int y, bool ghostMode) {
+	bool result = isPuttable(instance, x, y);
+	if (!result && !ghostMode)
+		return result;
+
+	//clear current occupied cells
 	BBox& box = bmap[instance];
-	if (box.standby) {
-		box.standby = false;
-	} else {
+	if (!box.standby) {
 		for (int i = 0; i < box.width; i++)
 			for (int j = 0; j < box.height; j++)
 				grid[box.x + i][box.y + j] = NULL;
+	}	
+	//mark new cells
+	if (!ghostMode) {
+		for (int i = 0; i < box.width; i++)
+			for (int j = 0; j < box.height; j++)
+				grid[x + i][y + j] = instance;
 	}
-	for (int i = 0; i < box.width; i++)
-		for (int j = 0; j < box.height; j++)
-			grid[x + i][y + j] = instance;
+	//update instance's position for rendering
 	box.x = x;
 	box.y = y;
-
-	glm::vec3 world = getWorldCoordinate(x, y);
-	instance->transform.x = world.x;
-	instance->transform.z = world.z;
+	if (!ghostMode) box.standby = false;
+	instance->transform = getWorldCoordinate(x, y);
+	return result;
 }
 
 glm::vec3 GridMap::getWorldCoordinate(int x, int y) {
@@ -92,15 +96,18 @@ void GridMap::add(Instance* instance) {
 }
 
 void GridMap::addMask(Instance* instance) {
-	const float epsilon = 0.1;
+	const float epsilon = 10;
 	vector<vertex>& vertexs = instance->obj->vertexs;
 	for (int i = 0; i < vertexs.size(); i++) {
-		if (vertexs[i].y < epsilon) {
-			glm::vec2 p = getGridCoordinate(vertexs[i]);
-			if (isInsideGrid(p.x, p.y))
+		vertex v = vertexs[i] + instance->transform;
+		if (abs(v.y) < epsilon) {
+			glm::vec2 p = getGridCoordinate(v);
+			if (isInsideGrid(p.x, p.y)) {
 				grid[(int)p.x][(int)p.y] = MASK;
+			}
 		}
 	}
+	bmap[instance] = *(new BBox());
 }
 
 void GridMap::remove(Instance* instance) {

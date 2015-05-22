@@ -3,14 +3,21 @@
 using namespace std;
 
 Render::Render() {
+	//enviroment
 	glEnable(GL_DEPTH_TEST);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-	glEnable(GL_TEXTURE_2D);
 	glClearColor(1.0, 1.0, 1.0, 0.0);
-	glColor3f(0.0, 0.0, 0.0);
-	glPointSize(1.0);
 
-	double eqr[] = { 0.0f, -1.0f, 0.0f, 0.0f };
+	//lighting
+	/*GLfloat diffuseLight[] = { 1.0f, 1.0f, 1.0, 1.0f };
+	GLfloat position[] = { 0, 0, -1 };
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
+	glLightfv(GL_LIGHT0, GL_POSITION, position);*/
+
+	//clipping plane
+	double eqr[] = { 0.0f, -1.0f, 0.0f, 40.0f };
 	glClipPlane(GL_CLIP_PLANE0, eqr);
 }
 
@@ -31,49 +38,51 @@ void renderObj(Instance* instance) {
 	//clipping
 	if (instance->clipping) 	
 		glEnable(GL_CLIP_PLANE0);
-	
+
+	//hightlight
+	switch (instance->hightlight) {
+	case HIGHTLIGHT_NORMAL:
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR);
+		glColor4f(1.0, 1.0, 1.0, 0.9);
+		break;
+	case HIGHTLIGHT_BOLD:
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+		break;
+	}
+
 	//rendering
 	Object* obj = instance->obj;
 	for (int i = 0; i < obj->faces.size(); i++) {
 		face& f = obj->faces[i];
-		if (instance->hightlight) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			glBegin(GL_POLYGON);
-			for (int j = 0; j < f.fv.size(); j++) {
-				fvertex& fv = f.fv[j];
-				vertex& v = obj->vertexs[fv.iv - 1];
-				if (fv.ivn > 0) {
-					vertex& vn = obj->nvertexs[fv.ivn - 1];
-					glNormal3f(vn.x, vn.y, vn.z);
-				}
-				glVertex3f(v.x, v.y, v.z);
-			}
-			glEnd();
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
-		else {
-			glMaterialfv(GL_FRONT, GL_AMBIENT, f.mtl->ambient);
-			glMaterialfv(GL_FRONT, GL_DIFFUSE, f.mtl->diffuse);
-			glMaterialfv(GL_FRONT, GL_SPECULAR, f.mtl->specular);
+		glMaterialfv(GL_FRONT, GL_AMBIENT, f.mtl->ambient);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, f.mtl->diffuse);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, f.mtl->specular);
+		if (f.mtl->textureID > 0) {
+			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D, f.mtl->textureID);
-			glBegin(GL_POLYGON);
-			for (int j = 0; j < f.fv.size(); j++) {
-				fvertex& fv = f.fv[j];
-				vertex& v = obj->vertexs[fv.iv - 1];
-				if (fv.ivn > 0) {
-					vertex& vn = obj->nvertexs[fv.ivn - 1];
-					glNormal3f(vn.x, vn.y, vn.z);
-				}
-				if (fv.ivt > 0) {
-					vertex& vt = obj->tvertexs[fv.ivt - 1];
-					glTexCoord2f(vt.x, vt.y);
-				}			
-				glVertex3f(v.x, v.y, v.z);
-			}
-			glEnd();
 		}
+		glBegin(GL_POLYGON);
+		
+		for (int j = 0; j < f.fv.size(); j++) {
+			fvertex& fv = f.fv[j];
+			vertex& v = obj->vertexs[fv.iv - 1];
+			if (fv.ivn > 0) {
+				vertex& vn = obj->nvertexs[fv.ivn - 1];
+				glNormal3f(vn.x, vn.y, vn.z);
+			}
+			if (fv.ivt > 0) {
+				vertex& vt = obj->tvertexs[fv.ivt - 1];
+				glTexCoord2f(vt.x, vt.y);
+			}
+			glVertex3f(v.x, v.y, v.z);
+		}
+		glEnd();
 	}
-	
+
+	glDisable(GL_BLEND);
+	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_CLIP_PLANE0);
 	glPopMatrix();
 }
@@ -89,6 +98,7 @@ void renderObj2D(Object2D* obj) {
 	bool use_texture = (obj->textureID >= 0);
 	
 	if (use_texture) {
+		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, obj->textureID);
 		glBegin(GL_POLYGON);
 			glTexCoord2d(0, 0);
@@ -100,6 +110,7 @@ void renderObj2D(Object2D* obj) {
 			glTexCoord2d(0, 1);
 			glVertex2i(0, obj->height);
 		glEnd();
+		glDisable(GL_TEXTURE_2D);
 	}
 	else {
 		glBegin(GL_POLYGON);		
@@ -162,6 +173,17 @@ void Render::renderGridLayout() {
 	int height = map->getHeight();
 	glm::vec3 minBorder = map->getWorldCoordinate(0, 0);
 	glm::vec3 maxBorder = map->getWorldCoordinate(width - 1, height - 1);
+	//ground
+	glColor3f(0.45, 0.45, 0.45);
+	glBegin(GL_POLYGON);
+	glVertex3f(minBorder.x, 0, minBorder.z);
+	glVertex3f(minBorder.x, 0, maxBorder.z);
+	glVertex3f(maxBorder.x, 0, maxBorder.z);
+	glVertex3f(maxBorder.x, 0, minBorder.z);
+	glEnd();
+	//line
+	glDisable(GL_DEPTH_TEST);
+	glColor3f(1.0, 1.0, 1.0);
 	glBegin(GL_LINES);
 	for (int i = 0; i < width; i++) {
 		GLfloat x = minBorder.x + cellSize * i;
@@ -174,4 +196,5 @@ void Render::renderGridLayout() {
 		glVertex3f(maxBorder.x, 0, z);
 	}
 	glEnd();
+	glEnable(GL_DEPTH_TEST);
 }

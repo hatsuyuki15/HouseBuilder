@@ -1,28 +1,23 @@
-// ComputerGraphicProject.cpp : Defines the entry point for the console application.
-//
-
 #include "Common.h"
 #include "stdafx.h"
-
-#ifndef __HOUSE_BUILDER_CONFIG
-#define __HOUSE_BUILDER_CONFIG
 
 GLfloat windowWidth = 800;
 GLfloat windowHeight = 600;
 GLfloat maxFPS = 30;
 
-#endif
-
 using namespace glm;
 
+ObjectManager* manager;
 Render* render;
 Camera* camera;
 GridMap* map;
 HUD* hud;
-Object* obj1;
-Object2D* obj2;
+Object2D* obj2D;
 Instance* selectedInstance;
+Instance* house;
 vec2 lastGridPosition;
+vec2 relativeSelectedCell;
+vec3 relativePosition;
 
 
 void quit(int code){
@@ -32,17 +27,19 @@ void quit(int code){
 }
 
 void loadData() {
-	map = new GridMap(30, -450, -900);
+	manager = ObjectManager::getInstance();
+	house = new Instance(manager->getHouse());
+	house->transform = manager->getHouseTransform();
+	map = new GridMap(30);
+	map->addMask(house);
+
 	hud = new HUD();
-	Loader* loader = Loader::getInstance();
-	obj1 = loader->read("res\\nielsen\\nielsen.obj");
-	obj2 = new Object2D("res\\hud.jpg");
-	obj2->position = vec2(0, 0);
-	obj2->width = 800;
-	obj2->height = 127;
-	obj2->setName("Huspro");
-	hud->add(obj2);
-	//	obj1 = loader->read("E:\\Downloads\\house\\house.obj");
+	obj2D = new Object2D("res\\hud.jpg");
+	obj2D->position = vec2(0, 0);
+	obj2D->width = 800;
+	obj2D->height = 127;
+	obj2D->setName("Huspro");
+	hud->add(obj2D);
 }
 
 void init() {
@@ -51,48 +48,62 @@ void init() {
 	render->setGridMap(map);
 	render->setHud(hud);
 	camera = Camera::getCamera();
+
+	glViewport(0, 0, windowWidth, windowHeight);
 }
 
 void onDrawing(void)  {
 	render->render();
 }
 
-void onKeypressed(Uint8* key_state) {
-	if (key_state[SDLK_a])
-		camera->move(1, 0, 0);
-	if (key_state[SDLK_d])
-		camera->move(-1, 0, 0);
-	if (key_state[SDLK_w])
-		camera->move(0, 1, 0);
-	if (key_state[SDLK_s])
-		camera->move(0, -1, 0);
-	if (key_state[SDLK_q])
-		camera->move(0, 0, -5);
-	if (key_state[SDLK_e])
-		camera->move(0, 0, 5);
-	if (key_state[SDLK_z])
-		camera->zoom(1.5);
-	if (key_state[SDLK_x])
-		camera->zoom(2.0f / 3.0f);
-	if (key_state[SDLK_j])
+void onKeypressed(SDLKey key) {
+	switch (key) {
+	case SDLK_z:
+		camera->zoom(1.1);
+		break;
+	case SDLK_x:
+		camera->zoom(1.0 / 1.1);
+		break;
+	case SDLK_s:
 		camera->rotate(0.2, 0);
-	if (key_state[SDLK_k])
+		break;
+	case SDLK_w:
 		camera->rotate(-0.2, 0);
-	if (key_state[SDLK_u])
+		break;
+	case SDLK_a:
 		camera->rotate(0, -0.2);
-	if (key_state[SDLK_i])
+		break;
+	case SDLK_d:
 		camera->rotate(0, 0.2);
-	if (key_state[SDLK_n]) {
-		selectedInstance = new Instance(obj1);
-		map->add(selectedInstance);
-	}
-	if (key_state[SDLK_g]) {
+		break;
+	case SDLK_h:
+		house->clipping = !house->clipping;
+		break;
+	case SDLK_g: 
+	{
 		Loader* loader = Loader::getInstance();
 		loader->export("save.obj", map->getInstances());
+		break;
+	}
+	case SDLK_1:
+		selectedInstance = new Instance(manager->objs[0]);
+		selectedInstance->hightlight = true;
+		map->add(selectedInstance);
+		break;
+	case SDLK_2:
+		selectedInstance = new Instance(manager->objs[1]);
+		selectedInstance->hightlight = true;
+		map->add(selectedInstance);
+		break;
+	case SDLK_3:
+		selectedInstance = new Instance(manager->objs[2]);
+		selectedInstance->hightlight = true;
+		map->add(selectedInstance);
+		break;
 	}
 }
 
-vec3 getWorldCoordinate(int mouseX, int mouseY) {
+vec3 getWorldCoordinate(int mouseX, int mouseY, bool ghostMode) {
 	GLint viewport[4];
 	GLdouble modelview[16];
 	GLdouble projection[16];
@@ -105,68 +116,74 @@ vec3 getWorldCoordinate(int mouseX, int mouseY) {
 
 	winX = (float)mouseX;
 	winY = (float)viewport[3] - (float)mouseY;
-	gluUnProject(winX, winY, 0, modelview, projection, viewport, &posX, &posY, &posZ);
-	vec3 oN = vec3(posX, posY, posZ);
-	gluUnProject(winX, winY, 1, modelview, projection, viewport, &posX, &posY, &posZ);
-	vec3 oF = vec3(posX, posY, posZ);
-	vec3 u = oF - oN;
-	u = glm::normalize(u);
-	if (oN.y == 0){
-		return oN;
-	}
-	else if (u.y != 0) {
-		float k = -oN.y / u.y;
-		return oN + k*u;
+	if (ghostMode) {
+		gluUnProject(winX, winY, 0, modelview, projection, viewport, &posX, &posY, &posZ);
+		vec3 oN = vec3(posX, posY, posZ);
+		gluUnProject(winX, winY, 1, modelview, projection, viewport, &posX, &posY, &posZ);
+		vec3 oF = vec3(posX, posY, posZ);
+		vec3 u = oF - oN;
+		u = glm::normalize(u);
+		if (oN.y == 0){
+			return oN;
+		}
+		else if (u.y != 0) {
+			float k = -oN.y / u.y;
+			return oN + k*u;
+		}
+	} else {
+		glReadPixels((int)winX, (int)winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
+		gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
+		return vec3(posX, posY, posZ);
 	}
 }
 
 void onMouseMove(int mouseX, int mouseY) {
 	if (selectedInstance) {
-		vec3 world = getWorldCoordinate(mouseX, mouseY);
-		vec2 position = map->getGridCoordinate(world);
-		if (position != lastGridPosition) {
-			map->put(selectedInstance, position.x, position.y);
-			lastGridPosition = position;			
+		vec3 world = getWorldCoordinate(mouseX, mouseY, true) + relativePosition;
+		vec2 origin = map->getGridCoordinate(world) - relativeSelectedCell;
+		if (origin != lastGridPosition) {
+			bool result = map->put(selectedInstance, origin.x, origin.y, true);
+			selectedInstance->hightlight = (result) ? HIGHTLIGHT_NORMAL : HIGHTLIGHT_BOLD;
+			lastGridPosition = origin;		
 		}
 	}
 }
 
 void onMouseLeftClick(int mouseX, int mouseY) {
-	Object2D* hit = hud->getObjectByXY(mouseX, windowHeight - mouseY);
-	if (hit){
-		printf("%s\n", hit->name);
-		return;
-	}
-	vec3 world = getWorldCoordinate(mouseX, mouseY);
-	vec2 position = map->getGridCoordinate(world);
 	if (selectedInstance) {
-		if (map->isPuttable(selectedInstance, position.x, position.y)) {
-			selectedInstance->hightlight = false;
+		vec3 world = getWorldCoordinate(mouseX, mouseY, true) + relativePosition;
+		vec2 origin = map->getGridCoordinate(world) - relativeSelectedCell;
+		bool result = map->put(selectedInstance, origin.x, origin.y, false);
+		if (result) {
+			selectedInstance->hightlight = HIGHTLIGHT_OFF;
 			selectedInstance = NULL;
 		}
-	}
-	else {
-		selectedInstance = map->getInstanceAt(position.x, position.y);
+	} else {
+		vec3 pos_normal_mode = getWorldCoordinate(mouseX, mouseY, false);
+		vec3 pos_ghost_mode  =  getWorldCoordinate(mouseX, mouseY, true);
+		relativePosition = pos_normal_mode - pos_ghost_mode;
+		vec2 selectedCell = map->getGridCoordinate(pos_normal_mode);
+		selectedInstance = map->getInstanceAt(selectedCell.x, selectedCell.y);
 		if (selectedInstance) {
-			selectedInstance->hightlight = true;
+			vec2 origin = map->getGridCoordinate(selectedInstance->transform);
+			relativeSelectedCell = selectedCell - origin;
+			selectedInstance->hightlight = HIGHTLIGHT_NORMAL;
 		}
 	}
+}
+
+void onMouseWheelUp() {
+	camera->zoom(1.0 / 1.1);
+}
+
+void onMouseWheelDown() {
+	camera->zoom(1.1);
 }
 
 void draw_screen(void) {
 	render->render();
 	SDL_GL_SwapBuffers();
-}
-
-void setup_opengl() {	
-	glShadeModel(GL_SMOOTH);	
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);	
-	glViewport(0, 0, windowWidth, windowHeight);	
-	init();
-}
-
+}	
 
 // Because process_event occur only when has events, so we need write this func to
 // make something really cool when user is not interracting with the inputs (keyboard, mouse)
@@ -174,27 +191,17 @@ void setup_opengl() {
 void input_handle() {
 	int x, y;
 	Uint8 mouse_state = SDL_GetMouseState(&x, &y);
-
-	Uint8* key_state = SDL_GetKeyState(NULL);
+	Uint8* key_state = SDL_GetKeyState(NULL);	
 	
-	onKeypressed(key_state);
-	
-	if (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)){
-		onMouseLeftClick(x, y);
-	}
-	else{
-		onMouseMove(x, y);
-	}
-
 	// move camera when mouse reach the border of screen
-	float mouse_speed = 0.01;
-	glm::vec2 center = glm::vec2(windowWidth / 2, windowHeight / 2);
-	glm::vec2 border = glm::vec2(windowWidth - 10, windowHeight - 10) - center;
-	glm::vec2 cursor = glm::vec2(x, y);
-	glm::vec2 direction = cursor - center;
-	if (abs(direction.x) > abs(border.x) || abs(direction.y) > abs(border.y)) {
-		camera->move(mouse_speed * direction.x, 0, mouse_speed * direction.y);
-	}
+	vec2 center = vec2(windowWidth / 2, windowHeight / 2);
+	vec2 border = vec2(windowWidth - 10, windowHeight - 10) - center;
+	vec2 cursor = vec2(x, y);
+	vec2 direction = cursor - center;
+	GLfloat moving_speed = 0.01;
+	GLfloat margin = 10;
+	if (abs(direction.x) > abs(border.x) - margin || abs(direction.y) > abs(border.y) - margin)
+		camera->move(moving_speed * direction.x, 0, moving_speed * direction.y);	
 }
 
 void process_events(void){
@@ -203,13 +210,24 @@ void process_events(void){
 		switch (event.type)
 		{
 		case SDL_KEYDOWN:
-			//handle_key(&event.key.keysym);
+			onKeypressed(event.key.keysym.sym);
 			break;
-		case SDL_MOUSEMOTION:
-			//handle_mouse_motion(&event.motion);
+		case SDL_MOUSEMOTION: 
+			onMouseMove(event.motion.x, event.motion.y);
 			break;
 		case SDL_MOUSEBUTTONDOWN:
-			//handle_mouse_button(&event.button);
+			switch (event.button.button) 
+			{
+			case SDL_BUTTON_WHEELDOWN:
+				onMouseWheelDown();
+				break;
+			case SDL_BUTTON_WHEELUP:
+				onMouseWheelUp();
+				break;
+			case SDL_BUTTON_LEFT:
+				onMouseLeftClick(event.button.x, event.button.y);
+				break;
+			}
 			break;
 		case SDL_QUIT:
 			quit(0);
@@ -242,7 +260,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);	
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	flags = SDL_OPENGL;// | SDL_FULLSCREEN;
 
@@ -257,7 +275,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		quit(1);
 	}
 
-	setup_opengl();
+	init();
 
 	//SDL_ShowCursor(SDL_DISABLE);
 

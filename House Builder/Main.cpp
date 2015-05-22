@@ -1,4 +1,5 @@
 #include "Common.h"
+#include <GL/GLUT.h>
 
 using namespace glm;
 
@@ -10,9 +11,9 @@ Instance* selectedInstance;
 vec2 lastGridPosition;
 
 void loadData() {
-	map = new GridMap(30, -450, -900);
+	map = new GridMap(30);
 	Loader* loader = Loader::getInstance();
-	obj1 = loader->read("E:\\Downloads\\nielsen\\nielsen.obj");
+	obj1 = loader->read("E:\\Downloads\\couch\\couch.obj");
 //	obj1 = loader->read("E:\\Downloads\\house\\house.obj");
 }
 
@@ -66,6 +67,7 @@ void onKeypressed(unsigned char key, int mouseX, int mouseY) {
 		camera->rotate(0, 0.2);
 		break;
 	case 'n':
+		printf("ok");
 		selectedInstance = new Instance(obj1);
 		map->add(selectedInstance);
 		break;
@@ -108,7 +110,7 @@ void onMouseMove(int mouseX, int mouseY) {
 		vec3 world = getWorldCoordinate(mouseX, mouseY);
 		vec2 position = map->getGridCoordinate(world);
 		if (position != lastGridPosition) {
-			map->put(selectedInstance, position.x, position.y);
+			map->put(selectedInstance, position.x, position.y, true);
 			lastGridPosition = position;
 			glutPostRedisplay();
 		}
@@ -120,11 +122,10 @@ void onMouseClick(int button, int state, int mouseX, int mouseY) {
 		vec3 world = getWorldCoordinate(mouseX, mouseY);
 		vec2 position = map->getGridCoordinate(world);
 		if (selectedInstance) {
-			if (map->isPuttable(selectedInstance, position.x, position.y)) {
+			map->put(selectedInstance, position.x, position.y, false);
 				selectedInstance->hightlight = false;
 				selectedInstance = NULL;
 				glutPostRedisplay();
-			}
 		} else {
 			selectedInstance = map->getInstanceAt(position.x, position.y);
 			if (selectedInstance) {
@@ -148,6 +149,7 @@ int main( int argc, char *argv[] )  {
 	glutPassiveMotionFunc(onMouseMove);
 	init();
 	glutMainLoop( );
+	return 0;
 }
 
 /* ----------------------------------------------------------------------- */
